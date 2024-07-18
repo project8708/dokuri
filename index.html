@@ -2,24 +2,50 @@
 <html lang="ko">
 <head>
     <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-analytics.js";
-    import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-analytics.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
-    const firebaseConfig = {
-            apiKey: "AIzaSyC4NOvRlMUJ3wonfT4wNi6NjVCbW5k2lVc",
-            authDomain: "project87-15906.firebaseapp.com",
-            projectId: "project87-15906",
-            storageBucket: "project87-15906.appspot.com",
-            messagingSenderId: "673281589690",
-            appId: "1:673281589690:web:b0897042e01548dd871d83",
-            measurementId: "G-RT23236Z4S"
-        };
+const firebaseConfig = {
+        apiKey: "AIzaSyC4NOvRlMUJ3wonfT4wNi6NjVCbW5k2lVc",
+        authDomain: "project87-15906.firebaseapp.com",
+        projectId: "project87-15906",
+        storageBucket: "project87-15906.appspot.com",
+        messagingSenderId: "673281589690",
+        appId: "1:673281589690:web:b0897042e01548dd871d83",
+        measurementId: "G-RT23236Z4S"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const database = getDatabase(app);
-    </script>
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const database = getDatabase(app);
+
+function order() {
+    if (cart.length === 0) {
+        alert("장바구니가 비어 있습니다.");
+        return;
+    }
+
+    let orderSummary = "주문 내역:\n";
+    cart.forEach(cartItem => {
+        orderSummary += `- ${cartItem.item} - ${formatPrice(cartItem.price)}원\n`;
+    });
+
+    // Firebase 데이터베이스에 주문 정보 저장
+    push(ref(database, 'orders'), {
+        order: cart,
+        totalPrice: totalPrice,
+        orderTime: new Date().toISOString()
+    });
+
+    alert(orderSummary + `\n총 가격: ${formatPrice(totalPrice)}원\n주문이 완료되었습니다. 감사합니다!`);
+    cart = [];
+    totalPrice = 0;
+    displayCart();
+    updateTotalPrice();
+    toggleCart();
+}
+</script>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>메뉴 선택</title>
