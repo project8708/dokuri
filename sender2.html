@@ -140,7 +140,12 @@
             cartContent.appendChild(cartItem);
         }
         cartContent.innerHTML += `<div>Total: ${total}원</div>`;
-        cartContent.innerHTML += `<button onclick="order()">주문하기</button>`;
+
+        const orderButton = document.createElement('button');
+        orderButton.textContent = '주문하기';
+        orderButton.onclick = order;
+        cartContent.appendChild(orderButton);
+
         modal.style.display = 'block';
     }
 
@@ -186,7 +191,6 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('.cart-icon').addEventListener('click', showCart);
-        
         document.querySelectorAll('button[data-addtocart]').forEach(button => {
             button.addEventListener('click', function() {
                 const item = this.dataset.item;
@@ -194,8 +198,16 @@
                 addToCart(item, price);
             });
         });
+
+        // Remove any existing onclick handlers that may cause issues
+        document.querySelectorAll('[onclick]').forEach(element => {
+            const functionName = element.getAttribute('onclick');
+            element.removeAttribute('onclick');
+            element.addEventListener('click', window[functionName]);
+        });
     });
 </script>
+
 
 
 </head>
