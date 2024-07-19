@@ -464,7 +464,7 @@
         ];
     }
 
-    function orderItems() {
+    async function orderItems() {
         if (cart.length === 0) {
             alert("장바구니가 비어 있습니다.");
             return;
@@ -482,19 +482,29 @@
         const audio = new Audio('https://www.soundjay.com/button/beep-07.wav');
         audio.play();
 
-        // 로컬 스토리지에 저장
-        const tableOrders = JSON.parse(localStorage.getItem('tableOrders')) || {};
-        tableOrders['1번 테이블'] = tableOrders['1번 테이블'] || [];
-        tableOrders['1번 테이블'].push({
+        // 서버로 주문 데이터 전송
+        const orderData = {
+            table: '1번 테이블',
             items: [...cart],
             total: totalPrice,
             timestamp: new Date().toISOString()
-        });
-        localStorage.setItem('tableOrders', JSON.stringify(tableOrders));
+        };
 
-        cart = [];
-        updateCart();
-        closeCart();
+        try {
+            await fetch('https://project8708.github.io/dokuri/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orderData)
+            });
+            cart = [];
+            updateCart();
+            closeCart();
+        } catch (error) {
+            console.error('Error sending order:', error);
+            alert('주문을 전송하는 중에 오류가 발생했습니다.');
+        }
     }
 </script>
 
