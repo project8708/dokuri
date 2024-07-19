@@ -67,7 +67,7 @@
             margin-left: 5px;
         }
     </style>
- <script type="module">
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
 
@@ -123,13 +123,21 @@
 
         for (const [item, { price, quantity }] of Object.entries(cart)) {
             total += price * quantity;
-            cartContent.innerHTML += `
-                <div class="cart-item">
-                    <span>${item} x${quantity}</span>
-                    <span>${price * quantity}원</span>
-                    <button onclick="updateQuantity('${item}', ${price}, -1)">-</button>
-                    <button onclick="updateQuantity('${item}', ${price}, 1)">+</button>
-                </div>`;
+            const cartItem = document.createElement('div');
+            cartItem.className = 'cart-item';
+            cartItem.innerHTML = `<span>${item} x${quantity}</span><span>${price * quantity}원</span>`;
+            
+            const minusButton = document.createElement('button');
+            minusButton.textContent = '-';
+            minusButton.onclick = () => updateQuantity(item, price, -1);
+
+            const plusButton = document.createElement('button');
+            plusButton.textContent = '+';
+            plusButton.onclick = () => updateQuantity(item, price, 1);
+
+            cartItem.appendChild(minusButton);
+            cartItem.appendChild(plusButton);
+            cartContent.appendChild(cartItem);
         }
         cartContent.innerHTML += `<div>Total: ${total}원</div>`;
         cartContent.innerHTML += `<button onclick="order()">주문하기</button>`;
@@ -188,6 +196,7 @@
         });
     });
 </script>
+
 
 </head>
 <body>
