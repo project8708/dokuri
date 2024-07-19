@@ -5,14 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Restaurant Menu</title>
     <style>
-        /* 여기에 CSS 코드 */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .menu-section {
+            margin-bottom: 20px;
+        }
+        .menu-section h2 {
+            background-color: #f4f4f4;
+            padding: 10px;
+        }
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .cart-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #007BFF;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .option-modal, .cart-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        .option-modal h3, .cart-modal h3 {
+            margin-top: 0;
+        }
+        .cart-content {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+        .cart-item button {
+            margin-left: 5px;
+        }
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
 
         const firebaseConfig = {
-            // Firebase 설정 값 입력
+            apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
+            authDomain: "acoustic-arch-320110.firebaseapp.com",
+            databaseURL: "https://acoustic-arch-320110-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "acoustic-arch-320110",
+            storageBucket: "acoustic-arch-320110.appspot.com",
+            messagingSenderId: "975479821242",
+            appId: "1:975479821242:web:a6b4d128893cdec1100383",
+            measurementId: "G-BGTD7LKT1C"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -80,50 +147,45 @@
             }
         }
 
-        // order 함수를 전역 객체에 추가
-        window.order = function() {
-            if (Object.keys(cart).length === 0) {
-                alert('장바구니가 비었습니다.');
-                return;
-            }
-            
-            const orderDetails = {
-                timestamp: new Date().toISOString(),
-                items: cart
-            };
+function order() {
+    if (Object.keys(cart).length === 0) {
+        alert('장바구니가 비었습니다.');
+        return;
+    }
+    
+    const orderDetails = {
+        timestamp: new Date().toISOString(),
+        items: cart
+    };
 
-            const orderRef = ref(database, 'orders/' + orderDetails.timestamp);
-            set(orderRef, orderDetails)
-                .then(() => {
-                    alert('주문이 완료되었습니다.');
-                    cart = {};
-                    updateCartIcon();
-                    closeCart();
-                })
-                .catch((error) => {
-                    alert('주문에 실패했습니다: ' + error.message);
-                });
-        };
-
-        function closeCart() {
-            const modal = document.querySelector('.cart-modal');
-            modal.style.display = 'none';
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('button[data-addtocart]').forEach(button => {
-                button.addEventListener('click', function() {
-                    const item = this.dataset.item;
-                    const price = parseInt(this.dataset.price, 10);
-                    addToCart(item, price);
-                });
-            });
-            document.querySelector('.cart-icon').addEventListener('click', showCart);
+    const orderRef = ref(database, 'orders/' + orderDetails.timestamp);
+    set(orderRef, orderDetails)
+        .then(() => {
+            alert('주문이 완료되었습니다.');
+            cart = {};
+            updateCartIcon();
+            closeCart();
+        })
+        .catch((error) => {
+            alert('주문에 실패했습니다: ' + error.message);
         });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('.cart-icon').addEventListener('click', showCart);
+    document.querySelectorAll('button[data-addtocart]').forEach(button => {
+        button.addEventListener('click', function() {
+            const item = this.dataset.item;
+            const price = parseInt(this.dataset.price, 10);
+            addToCart(item, price);
+        });
+    });
+});
+
     </script>
 </head>
 <body>
-<h1>Menu</h1>
+    <h1>Menu</h1>
 
     <div class="menu-section" id="꼬치구이">
         <h2>꼬치구이</h2>
@@ -243,14 +305,17 @@
         <h2>기타</h2>
         <div class="menu-item"><span>레몬 슬라이스(1/2)</span><span>1,000원 <button data-addtocart data-item="레몬 슬라이스(1/2)" data-price="1000">Add</button></span></div>
     </div>
+
     <div class="cart-icon">Cart (0)</div>
     <div class="notification"></div>
+
     <div class="option-modal">
         <h3>옵션 선택</h3>
         <div class="options-container"></div>
         <button id="add-option-btn">추가</button>
         <button onclick="closeOptions()">닫기</button>
     </div>
+
     <div class="cart-modal">
         <h3>장바구니</h3>
         <div class="cart-content"></div>
