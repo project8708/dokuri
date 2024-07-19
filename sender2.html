@@ -147,58 +147,56 @@
             }
         }
 
+        function order() {
+            if (Object.keys(cart).length === 0) {
+                alert('장바구니가 비었습니다.');
+                return;
+            }
 
+            const orderDetails = {
+                timestamp: new Date().toISOString(),
+                items: cart
+            };
 
-document.addEventListener('DOMContentLoaded', function() {
-    // 모든 '주문하기' 버튼에 대한 이벤트 리스너 설정
-    const orderButtons = document.querySelectorAll('button[onclick="order()"]');
-    orderButtons.forEach(button => {
-        button.removeAttribute('onclick'); // HTML에서 onclick 속성 제거
-        button.addEventListener('click', order); // JavaScript를 사용하여 이벤트 리스너 추가
-    });
+            const orderRef = ref(database, 'orders/' + orderDetails.timestamp);
+            set(orderRef, orderDetails)
+                .then(() => {
+                    alert('주문이 완료되었습니다.');
+                    cart = {};
+                    updateCartIcon();
+                    closeCart();
+                })
+                .catch((error) => {
+                    alert('주문에 실패했습니다: ' + error.message);
+                });
+        }
 
-    // 모든 '상품 추가' 버튼에 대한 이벤트 리스너 설정
-    const addToCartButtons = document.querySelectorAll('button[data-addtocart]');
-    addToCartButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const item = this.dataset.item;
-            const price = parseInt(this.dataset.price, 10);
-            addToCart(item, price);
+        function closeCart() {
+            const modal = document.querySelector('.cart-modal');
+            modal.style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('button[data-addtocart]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const item = this.dataset.item;
+                    const price = parseInt(this.dataset.price, 10);
+                    addToCart(item, price);
+                });
+            });
+
+            const orderButton = document.querySelector('button[onclick="order()"]');
+            if (orderButton) {
+                orderButton.removeAttribute('onclick');
+                orderButton.addEventListener('click', order);
+            }
         });
-    });
-});
-
-// 'order' 함수 정의
-function order() {
-    if (Object.keys(cart).length === 0) {
-        alert('장바구니가 비었습니다.');
-        return;
-    }
-
-    const orderDetails = {
-        timestamp: new Date().toISOString(),
-        items: cart
-    };
-
-    const orderRef = ref(database, 'orders/' + orderDetails.timestamp);
-    set(orderRef, orderDetails)
-        .then(() => {
-            alert('주문이 완료되었습니다.');
-            cart = {};
-            updateCartIcon();
-            closeCart();
-        })
-        .catch((error) => {
-            alert('주문에 실패했습니다: ' + error.message);
-        });
-}
-
     </script>
 </head>
 <body>
     <h1>Menu</h1>
 
-    <div class="menu-section" id="꼬치구이">
+<div class="menu-section" id="꼬치구이">
         <h2>꼬치구이</h2>
         <div class="menu-item"><span>츠쿠네</span><span>5,500원 <button data-addtocart data-item="츠쿠네" data-price="5500">Add</button></span></div>
         <div class="menu-item"><span>닭 날개</span><span>4,500원 <button data-addtocart data-item="닭 날개" data-price="4500">Add</button></span></div>
