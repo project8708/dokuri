@@ -41,7 +41,7 @@
             border-radius: 5px;
             display: none;
         }
-        .option-modal {
+        .option-modal, .cart-modal {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -51,8 +51,20 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             display: none;
         }
-        .option-modal h3 {
+        .option-modal h3, .cart-modal h3 {
             margin-top: 0;
+        }
+        .cart-content {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+        .cart-item button {
+            margin-left: 5px;
         }
     </style>
     <script>
@@ -87,14 +99,52 @@
         }
 
         function showCart() {
-            let cartContent = '';
+            const modal = document.querySelector('.cart-modal');
+            const cartContent = document.querySelector('.cart-content');
+            cartContent.innerHTML = '';
             let total = 0;
+
             for (const [item, { price, quantity }] of Object.entries(cart)) {
-                cartContent += `<div>${item} x${quantity} - ${price * quantity}원</div>`;
                 total += price * quantity;
+                cartContent.innerHTML += `
+                    <div class="cart-item">
+                        <span>${item} x${quantity}</span>
+                        <span>${price * quantity}원</span>
+                        <button onclick="updateQuantity('${item}', ${price}, -1)">-</button>
+                        <button onclick="updateQuantity('${item}', ${price}, 1)">+</button>
+                    </div>`;
             }
-            cartContent += `<div>Total: ${total}원</div>`;
-            alert(cartContent);
+            cartContent.innerHTML += `<div>Total: ${total}원</div>`;
+            cartContent.innerHTML += `<button onclick="order()">주문하기</button>`;
+            modal.style.display = 'block';
+        }
+
+        function updateQuantity(item, price, change) {
+            if (cart[item]) {
+                cart[item].quantity += change;
+                if (cart[item].quantity <= 0) {
+                    delete cart[item];
+                }
+                showCart();
+                updateCartIcon();
+            }
+        }
+
+        function order() {
+            if (Object.keys(cart).length === 0) {
+                alert('장바구니가 비었습니다.');
+                return;
+            }
+            // Here you can implement the order logic, such as sending the order to the server
+            alert('주문이 완료되었습니다.');
+            cart = {};
+            updateCartIcon();
+            closeCart();
+        }
+
+        function closeCart() {
+            const modal = document.querySelector('.cart-modal');
+            modal.style.display = 'none';
         }
 
         function showOptions(item, price, options) {
@@ -250,6 +300,12 @@
         <div class="options-container"></div>
         <button id="add-option-btn">추가</button>
         <button onclick="closeOptions()">닫기</button>
+    </div>
+
+    <div class="cart-modal">
+        <h3>장바구니</h3>
+        <div class="cart-content"></div>
+        <button onclick="closeCart()">닫기</button>
     </div>
 </body>
 </html>
