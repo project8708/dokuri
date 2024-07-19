@@ -206,6 +206,7 @@
                     addToCart(item, price);
                 });
             });
+            document.querySelector('.cart-icon').addEventListener('click', showCart);
         });
     </script>
 </head>
@@ -331,7 +332,7 @@
         <div class="menu-item"><span>레몬 슬라이스(1/2)</span><span>1,000원 <button data-addtocart data-item="레몬 슬라이스(1/2)" data-price="1000">Add</button></span></div>
     </div>
 
-    <div class="cart-icon" onclick="showCart()">Cart (0)</div>
+    <div class="cart-icon">Cart (0)</div>
     <div class="notification"></div>
 
     <div class="option-modal">
