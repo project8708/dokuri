@@ -92,17 +92,19 @@
             background: rgba(0, 0, 0, 0.5);
             z-index: 999;
         }
-        .table-number {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background: #4CAF50;
-            color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 1001;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
+.table-number {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4CAF50;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1001;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
         button {
             background-color: #4CAF50;
             color: white;
@@ -342,16 +344,18 @@
   let setItemCount = 0;
   let maxSetItems = 0;
 
-  function addToCart(item, price, options = []) {
-      const cartItem = cart.find(i => i.item === item && JSON.stringify(i.options) === JSON.stringify(options));
-      if (cartItem) {
-          cartItem.quantity++;
-      } else {
-          cart.push({ item, price, quantity: 1, options });
-      }
-      updateCart();
-      showNotification(`${item}이(가) 장바구니에 추가되었습니다.`);
-  }
+function addToCart(item, price, options = []) {
+    console.log(`Adding item: ${item}, Price: ${price}, Options: ${options}`);
+    const cartItem = cart.find(i => i.item === item && JSON.stringify(i.options) === JSON.stringify(options));
+    if (cartItem) {
+        cartItem.quantity++;
+    } else {
+        cart.push({ item, price, quantity: 1, options });
+    }
+    updateCart();
+    showNotification(`${item}이(가) 장바구니에 추가되었습니다.`);
+}
+
 
   function updateCart() {
       cartCount = cart.reduce((count, item) => count + item.quantity, 0);
