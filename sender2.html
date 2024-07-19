@@ -161,28 +161,32 @@
     }
 
     function order() {
-        if (Object.keys(cart).length === 0) {
-            alert('장바구니가 비었습니다.');
-            return;
-        }
-
-        const orderDetails = {
-            timestamp: new Date().toISOString(),
-            items: cart
-        };
-
-        const orderRef = ref(database, 'orders/' + orderDetails.timestamp);
-        set(orderRef, orderDetails)
-            .then(() => {
-                alert('주문이 완료되었습니다.');
-                cart = {};
-                updateCartIcon();
-                closeCart();
-            })
-            .catch((error) => {
-                alert('주문에 실패했습니다: ' + error.message);
-            });
+    if (Object.keys(cart).length === 0) {
+        alert('장바구니가 비었습니다.');
+        return;
     }
+
+    // Replace invalid characters in the Firebase path
+    const timestamp = new Date().toISOString().replace(/[\.\:\-]/g, ''); // Remove periods, colons, and dashes
+    const orderDetails = {
+        timestamp: timestamp,
+        items: cart
+    };
+
+    // Use the cleaned timestamp for the Firebase path
+    const orderRef = ref(database, 'orders/' + timestamp);
+    set(orderRef, orderDetails)
+        .then(() => {
+            alert('주문이 완료되었습니다.');
+            cart = {};
+            updateCartIcon();
+            closeCart();
+        })
+        .catch((error) => {
+            alert('주문에 실패했습니다: ' + error.message);
+        });
+}
+
 
     function closeCart() {
         const modal = document.querySelector('.cart-modal');
