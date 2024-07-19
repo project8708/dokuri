@@ -68,6 +68,26 @@
             z-index: 999;
         }
     </style>
+
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
+    <!-- Add Firebase products that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
 </head>
 <body>
 
@@ -83,6 +103,7 @@
         <strong>총 금액: <span id="total-price">0</span>원</strong>
     </div>
     <button onclick="closeCart()">닫기</button>
+    <button onclick="orderItems()">주문하기</button>
 </div>
 
 <div class="option-modal" id="option-modal">
@@ -433,6 +454,31 @@
             '팽이버섯 삼겹', '메추리알 삼겹', '아스파라 삼겹', '초생강 삼겹',
             '마늘 삼겹', '토마토 삼겹', '막창', '닭 껍질', '염통'
         ];
+    }
+
+    function orderItems() {
+        if (cart.length === 0) {
+            alert("장바구니가 비어 있습니다.");
+            return;
+        }
+        
+        const order = {
+            items: cart,
+            total: totalPrice,
+            timestamp: new Date().toISOString()
+        };
+
+        firebase.database().ref('orders').push(order)
+            .then(() => {
+                alert("주문이 완료되었습니다.");
+                cart = [];
+                updateCart();
+                closeCart();
+            })
+            .catch(error => {
+                console.error("Error ordering items: ", error);
+                alert("주문 중 오류가 발생했습니다.");
+            });
     }
 </script>
 
