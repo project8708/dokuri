@@ -67,14 +67,11 @@
             margin-left: 5px;
         }
     </style>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
 
-
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
-
-    const firebaseConfig = {
+        const firebaseConfig = {
             apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
             authDomain: "acoustic-arch-320110.firebaseapp.com",
             databaseURL: "https://acoustic-arch-320110-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -83,97 +80,133 @@
             messagingSenderId: "975479821242",
             appId: "1:975479821242:web:a6b4d128893cdec1100383",
             measurementId: "G-BGTD7LKT1C"
-    };
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-    let cart = {};
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        let cart = {};
 
-    function addToCart(item, price) {
-        if (cart[item]) {
-            cart[item].quantity++;
-        } else {
-            cart[item] = { price, quantity: 1 };
+        function addToCart(item, price) {
+            if (cart[item]) {
+                cart[item].quantity++;
+            } else {
+                cart[item] = { price, quantity: 1 };
+            }
+            showNotification(item + " added to cart.");
+            updateCartDisplay();
         }
-        showNotification(item + " added to cart.");
-        updateCartDisplay();
-    }
 
-    function updateCartDisplay() {
-        const modal = document.querySelector('.cart-modal');
-        const cartContent = modal.querySelector('.cart-content');
-        cartContent.innerHTML = '';
-        let total = 0;
+        function updateCartDisplay() {
+            const modal = document.querySelector('.cart-modal');
+            const cartContent = modal.querySelector('.cart-content');
+            cartContent.innerHTML = '';
+            let total = 0;
 
-        Object.entries(cart).forEach(([item, { price, quantity }]) => {
-            const lineItem = document.createElement('div');
-            lineItem.className = 'cart-item';
-            lineItem.innerHTML = `<span>${item} - ${quantity} x ${price} = ${quantity * price}원</span>`;
+            Object.entries(cart).forEach(([item, { price, quantity }]) => {
+                const lineItem = document.createElement('div');
+                lineItem.className = 'cart-item';
+                lineItem.innerHTML = `<span>${item} - ${quantity} x ${price} = ${quantity * price}원</span>`;
 
-            const minusButton = document.createElement('button');
-            minusButton.innerText = '-';
-            minusButton.addEventListener('click', () => updateQuantity(item, -1));
-            lineItem.appendChild(minusButton);
+                const minusButton = document.createElement('button');
+                minusButton.innerText = '-';
+                minusButton.addEventListener('click', () => updateQuantity(item, -1));
+                lineItem.appendChild(minusButton);
 
-            const plusButton = document.createElement('button');
-            plusButton.innerText = '+';
-            plusButton.addEventListener('click', () => updateQuantity(item, 1));
-            lineItem.appendChild(plusButton);
+                const plusButton = document.createElement('button');
+                plusButton.innerText = '+';
+                plusButton.addEventListener('click', () => updateQuantity(item, 1));
+                lineItem.appendChild(plusButton);
 
-            cartContent.appendChild(lineItem);
-            total += price * quantity;
-        });
+                cartContent.appendChild(lineItem);
+                total += price * quantity;
+            });
 
-        cartContent.innerHTML += `<div>Total: ${total}원</div>`;
-    }
+            cartContent.innerHTML += `<div>Total: ${total}원</div>`;
+            cartContent.innerHTML += '<button id="order-button">Order Now</button>';
 
-    function updateQuantity(item, change) {
-        if (cart[item] && (cart[item].quantity + change > 0)) {
-            cart[item].quantity += change;
-        } else if (cart[item]) {
-            delete cart[item];
+            document.getElementById('order-button').addEventListener('click', () => {
+                sendOrder();
+            });
         }
-        updateCartDisplay();
-    }
 
-    function showNotification(message) {
-        const notification = document.querySelector('.notification');
-        notification.textContent = message;
-        notification.style.display = 'block';
-        setTimeout(() => notification.style.display = 'none', 2000);
-    }
+        function updateQuantity(item, change) {
+            if (cart[item] && (cart[item].quantity + change > 0)) {
+                cart[item].quantity += change;
+            } else if (cart[item]) {
+                delete cart[item];
+            }
+            updateCartDisplay();
+        }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('button[data-addtocart]').forEach(button => {
-            button.addEventListener('click', () => {
-                const item = button.getAttribute('data-item');
-                const price = parseInt(button.getAttribute('data-price'), 10);
-                addToCart(item, price);
+        function showNotification(message) {
+            const notification = document.querySelector('.notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => notification.style.display = 'none', 2000);
+        }
+
+        function sendOrder() {
+            const orderRef = ref(database, 'orders/' + Date.now());
+            set(orderRef, cart).then(() => {
+                showNotification('Order placed successfully.');
+                cart = {};
+                updateCartDisplay();
+                closeCart();
+            }).catch(error => {
+                showNotification('Failed to place order: ' + error.message);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('button[data-addtocart]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const item = button.getAttribute('data-item');
+                    const price = parseInt(button.getAttribute('data-price'), 10);
+                    addToCart(item, price);
+                });
+            });
+
+            const cartModal = document.querySelector('.cart-modal');
+            document.querySelector('.cart-icon').addEventListener('click', () => {
+                cartModal.style.display = 'block';
+            });
+
+            window.addEventListener('click', (event) => {
+                if (event.target !== cartModal && !cartModal.contains(event.target) && event.target !== document.querySelector('.cart-icon')) {
+                    cartModal.style.display = 'none';
+                }
             });
         });
 
-        const cartModal = document.querySelector('.cart-modal');
-        document.querySelector('.cart-icon').addEventListener('click', () => {
-            cartModal.style.display = 'block';
-        });
-        window.addEventListener('click', (event) => {
-            if (event.target === cartModal) {
-                cartModal.style.display = 'none';
-            }
-        });
-    });
-</script>
+        function closeCart() {
+            document.querySelector('.cart-modal').style.display = 'none';
+        }
 
+        function showOptions(item, price, options) {
+            const modal = document.querySelector('.option-modal');
+            const optionsContainer = modal.querySelector('.options-container');
+            optionsContainer.innerHTML = '';
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.addEventListener('click', () => {
+                    addToCart(`${item} (${option})`, price);
+                    modal.style.display = 'none';
+                });
+                optionsContainer.appendChild(button);
+            });
+            modal.style.display = 'block';
+        }
 
-
-
-
-
+        function closeOptions() {
+            document.querySelector('.option-modal').style.display = 'none';
+        }
+    </script>
 </head>
 <body>
     <h1>Menu</h1>
 
-<div class="menu-section" id="꼬치구이">
+    <div class="menu-section" id="꼬치구이">
         <h2>꼬치구이</h2>
         <div class="menu-item"><span>츠쿠네</span><span>5,500원 <button data-addtocart data-item="츠쿠네" data-price="5500">Add</button></span></div>
         <div class="menu-item"><span>닭 날개</span><span>4,500원 <button data-addtocart data-item="닭 날개" data-price="4500">Add</button></span></div>
@@ -305,7 +338,6 @@
     <div class="cart-modal">
         <h3>장바구니</h3>
         <div class="cart-content"></div>
-        <button onclick="closeCart()">닫기</button>
     </div>
 </body>
 </html>
