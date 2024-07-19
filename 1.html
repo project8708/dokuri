@@ -274,247 +274,249 @@
     <div class="menu-item">레몬 슬라이스(1/2) - 1,000원 <button onclick="addToCart('레몬 슬라이스(1/2)', 1000)">추가</button></div>
 </div>
 
-<!-- Add Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+<!-- Firebase SDKs -->
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+  import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
 
-<script>
   // Your web app's Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
     authDomain: "acoustic-arch-320110.firebaseapp.com",
+    databaseURL: "https://acoustic-arch-320110-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "acoustic-arch-320110",
     storageBucket: "acoustic-arch-320110.appspot.com",
     messagingSenderId: "975479821242",
-    appId: "1:975479821242:web:a6b4d128893cdec1100383"
+    appId: "1:975479821242:web:a6b4d128893cdec1100383",
+    measurementId: "G-BGTD7LKT1C"
   };
 
   // Initialize Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
-</script>
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
 
-<script>
-    let cart = [];
-    let cartCount = 0;
-    let totalPrice = 0;
-    let currentItem = {};
-    let currentOptions = {};
-    let currentSetItems = {};
-    let setItemCount = 0;
-    let maxSetItems = 0;
+  let cart = [];
+  let cartCount = 0;
+  let totalPrice = 0;
+  let currentItem = {};
+  let currentOptions = {};
+  let currentSetItems = {};
+  let setItemCount = 0;
+  let maxSetItems = 0;
 
-    function addToCart(item, price, options = []) {
-        const cartItem = cart.find(i => i.item === item && JSON.stringify(i.options) === JSON.stringify(options));
-        if (cartItem) {
-            cartItem.quantity++;
-        } else {
-            cart.push({ item, price, quantity: 1, options });
-        }
-        updateCart();
-        showNotification(`${item}이(가) 장바구니에 추가되었습니다.`);
-    }
+  function addToCart(item, price, options = []) {
+      const cartItem = cart.find(i => i.item === item && JSON.stringify(i.options) === JSON.stringify(options));
+      if (cartItem) {
+          cartItem.quantity++;
+      } else {
+          cart.push({ item, price, quantity: 1, options });
+      }
+      updateCart();
+      showNotification(`${item}이(가) 장바구니에 추가되었습니다.`);
+  }
 
-    function updateCart() {
-        cartCount = cart.reduce((count, item) => count + item.quantity, 0);
-        totalPrice = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-        document.getElementById('cart-count').innerText = cartCount;
-        document.getElementById('total-price').innerText = totalPrice;
-        const cartItems = document.getElementById('cart-items');
-        cartItems.innerHTML = '';
-        cart.forEach(item => {
-            const cartItemDiv = document.createElement('div');
-            cartItemDiv.className = 'cart-item';
-            cartItemDiv.innerHTML = `
-                ${item.item} ${item.options.length > 0 ? `(${item.options.join(', ')})` : ''} - ${item.price}원 x ${item.quantity}
-                <button onclick="changeQuantity('${item.item}', 1, '${JSON.stringify(item.options)}')">+</button>
-                <button onclick="changeQuantity('${item.item}', -1, '${JSON.stringify(item.options)}')">-</button>
-            `;
-            cartItems.appendChild(cartItemDiv);
-        });
-    }
+  function updateCart() {
+      cartCount = cart.reduce((count, item) => count + item.quantity, 0);
+      totalPrice = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+      document.getElementById('cart-count').innerText = cartCount;
+      document.getElementById('total-price').innerText = totalPrice;
+      const cartItems = document.getElementById('cart-items');
+      cartItems.innerHTML = '';
+      cart.forEach(item => {
+          const cartItemDiv = document.createElement('div');
+          cartItemDiv.className = 'cart-item';
+          cartItemDiv.innerHTML = `
+              ${item.item} ${item.options.length > 0 ? `(${item.options.join(', ')})` : ''} - ${item.price}원 x ${item.quantity}
+              <button onclick="changeQuantity('${item.item}', 1, '${JSON.stringify(item.options)}')">+</button>
+              <button onclick="changeQuantity('${item.item}', -1, '${JSON.stringify(item.options)}')">-</button>
+          `;
+          cartItems.appendChild(cartItemDiv);
+      });
+  }
 
-    function changeQuantity(item, delta, options) {
-        const cartItem = cart.find(i => i.item === item && JSON.stringify(i.options) === options);
-        if (cartItem) {
-            cartItem.quantity += delta;
-            if (cartItem.quantity <= 0) {
-                cart = cart.filter(i => !(i.item === item && JSON.stringify(i.options) === options));
-            }
-            updateCart();
-        }
-    }
+  function changeQuantity(item, delta, options) {
+      const cartItem = cart.find(i => i.item === item && JSON.stringify(i.options) === options);
+      if (cartItem) {
+          cartItem.quantity += delta;
+          if (cartItem.quantity <= 0) {
+              cart = cart.filter(i => !(i.item === item && JSON.stringify(i.options) === options));
+          }
+          updateCart();
+      }
+  }
 
-    function showNotification(message) {
-        const notification = document.getElementById('notification');
-        notification.innerText = message;
-        notification.style.display = 'block';
-        setTimeout(() => {
-            notification.style.display = 'none';
-        }, 2000);
-    }
+  function showNotification(message) {
+      const notification = document.getElementById('notification');
+      notification.innerText = message;
+      notification.style.display = 'block';
+      setTimeout(() => {
+          notification.style.display = 'none';
+      }, 2000);
+  }
 
-    function toggleCart() {
-        const cartModal = document.getElementById('cart-modal');
-        const modalOverlay = document.getElementById('modal-overlay');
-        cartModal.style.display = cartModal.style.display === 'block' ? 'none' : 'block';
-        modalOverlay.style.display = modalOverlay.style.display === 'block' ? 'none' : 'block';
-    }
+  function toggleCart() {
+      const cartModal = document.getElementById('cart-modal');
+      const modalOverlay = document.getElementById('modal-overlay');
+      cartModal.style.display = cartModal.style.display === 'block' ? 'none' : 'block';
+      modalOverlay.style.display = modalOverlay.style.display === 'block' ? 'none' : 'block';
+  }
 
-    function closeCart() {
-        document.getElementById('cart-modal').style.display = 'none';
-        document.getElementById('modal-overlay').style.display = 'none';
-    }
+  function closeCart() {
+      document.getElementById('cart-modal').style.display = 'none';
+      document.getElementById('modal-overlay').style.display = 'none';
+  }
 
-    function closeModals() {
-        document.getElementById('cart-modal').style.display = 'none';
-        document.getElementById('option-modal').style.display = 'none';
-        document.getElementById('set-modal').style.display = 'none';
-        document.getElementById('modal-overlay').style.display = 'none';
-    }
+  function closeModals() {
+      document.getElementById('cart-modal').style.display = 'none';
+      document.getElementById('option-modal').style.display = 'none';
+      document.getElementById('set-modal').style.display = 'none';
+      document.getElementById('modal-overlay').style.display = 'none';
+  }
 
-    function showOptions(item, basePrice, options) {
-        currentItem = { item, basePrice };
-        currentOptions = options.reduce((obj, option) => {
-            obj[option] = basePrice;
-            return obj;
-        }, {});
-        const optionModal = document.getElementById('option-modal');
-        const optionItems = document.getElementById('option-items');
-        optionItems.innerHTML = options.map(option => `
-            <div>
-                <label>
-                    <input type="radio" name="option" value="${option}"> ${option}
-                </label>
-            </div>
-        `).join('');
-        optionModal.style.display = 'block';
-        document.getElementById('modal-overlay').style.display = 'block';
-    }
+  function showOptions(item, basePrice, options) {
+      currentItem = { item, basePrice };
+      currentOptions = options.reduce((obj, option) => {
+          obj[option] = basePrice;
+          return obj;
+      }, {});
+      const optionModal = document.getElementById('option-modal');
+      const optionItems = document.getElementById('option-items');
+      optionItems.innerHTML = options.map(option => `
+          <div>
+              <label>
+                  <input type="radio" name="option" value="${option}"> ${option}
+              </label>
+          </div>
+      `).join('');
+      optionModal.style.display = 'block';
+      document.getElementById('modal-overlay').style.display = 'block';
+  }
 
-    function showOptionsWithPrices(item, optionsWithPrices) {
-        currentItem = { item };
-        currentOptions = optionsWithPrices;
-        const optionModal = document.getElementById('option-modal');
-        const optionItems = document.getElementById('option-items');
-        optionItems.innerHTML = Object.keys(optionsWithPrices).map(option => `
-            <div>
-                <label>
-                    <input type="radio" name="option" value="${option}"> ${option} - ${optionsWithPrices[option]}원
-                </label>
-            </div>
-        `).join('');
-        optionModal.style.display = 'block';
-        document.getElementById('modal-overlay').style.display = 'block';
-    }
+  function showOptionsWithPrices(item, optionsWithPrices) {
+      currentItem = { item };
+      currentOptions = optionsWithPrices;
+      const optionModal = document.getElementById('option-modal');
+      const optionItems = document.getElementById('option-items');
+      optionItems.innerHTML = Object.keys(optionsWithPrices).map(option => `
+          <div>
+              <label>
+                  <input type="radio" name="option" value="${option}"> ${option} - ${optionsWithPrices[option]}원
+              </label>
+          </div>
+      `).join('');
+      optionModal.style.display = 'block';
+      document.getElementById('modal-overlay').style.display = 'block';
+  }
 
-    function showSetOptions(item, price, maxItems) {
-        currentItem = { item, price };
-        maxSetItems = maxItems;
-        currentSetItems = getSkewers().reduce((acc, skewer) => {
-            acc[skewer] = 0;
-            return acc;
-        }, {});
-        setItemCount = 0;
-        const setModal = document.getElementById('set-modal');
-        const setItems = document.getElementById('set-items');
-        const selectedSetItems = document.getElementById('selected-set-items');
-        setItems.innerHTML = `
-            <p>꼬치구이 중에서 ${maxItems}개를 선택하세요</p>
-            ${getSkewers().map(skewer => `
-                <div class="set-item">
-                    ${skewer} - <span id="set-item-count-${skewer}">0</span>
-                    <button onclick="changeSetItemCount('${skewer}', 1)">+</button>
-                    <button onclick="changeSetItemCount('${skewer}', -1)">-</button>
-                </div>
-            `).join('')}
-        `;
-        selectedSetItems.innerHTML = '<strong>선택된 꼬치:</strong> 0개';
-        setModal.style.display = 'block';
-        document.getElementById('modal-overlay').style.display = 'block';
-    }
+  function showSetOptions(item, price, maxItems) {
+      currentItem = { item, price };
+      maxSetItems = maxItems;
+      currentSetItems = getSkewers().reduce((acc, skewer) => {
+          acc[skewer] = 0;
+          return acc;
+      }, {});
+      setItemCount = 0;
+      const setModal = document.getElementById('set-modal');
+      const setItems = document.getElementById('set-items');
+      const selectedSetItems = document.getElementById('selected-set-items');
+      setItems.innerHTML = `
+          <p>꼬치구이 중에서 ${maxItems}개를 선택하세요</p>
+          ${getSkewers().map(skewer => `
+              <div class="set-item">
+                  ${skewer} - <span id="set-item-count-${skewer}">0</span>
+                  <button onclick="changeSetItemCount('${skewer}', 1)">+</button>
+                  <button onclick="changeSetItemCount('${skewer}', -1)">-</button>
+              </div>
+          `).join('')}
+      `;
+      selectedSetItems.innerHTML = '<strong>선택된 꼬치:</strong> 0개';
+      setModal.style.display = 'block';
+      document.getElementById('modal-overlay').style.display = 'block';
+  }
 
-    function changeSetItemCount(item, delta) {
-        if (item === '츠쿠네' && currentSetItems[item] >= 1 && delta > 0) {
-            alert('츠쿠네는 1개까지만 선택할 수 있습니다.');
-            return;
-        }
-        const newCount = currentSetItems[item] + delta;
-        if (newCount < 0) return;
-        if (setItemCount + delta > maxSetItems) {
-            alert(`최대 ${maxSetItems}개까지 선택할 수 있습니다.`);
-            return;
-        }
-        currentSetItems[item] = newCount;
-        setItemCount += delta;
-        document.getElementById(`set-item-count-${item}`).innerText = newCount;
-        document.getElementById('selected-set-items').innerHTML = `<strong>선택된 꼬치:</strong> ${setItemCount}개`;
-    }
+  function changeSetItemCount(item, delta) {
+      if (item === '츠쿠네' && currentSetItems[item] >= 1 && delta > 0) {
+          alert('츠쿠네는 1개까지만 선택할 수 있습니다.');
+          return;
+      }
+      const newCount = currentSetItems[item] + delta;
+      if (newCount < 0) return;
+      if (setItemCount + delta > maxSetItems) {
+          alert(`최대 ${maxSetItems}개까지 선택할 수 있습니다.`);
+          return;
+      }
+      currentSetItems[item] = newCount;
+      setItemCount += delta;
+      document.getElementById(`set-item-count-${item}`).innerText = newCount;
+      document.getElementById('selected-set-items').innerHTML = `<strong>선택된 꼬치:</strong> ${setItemCount}개`;
+  }
 
-    function selectOption() {
-        const selectedOption = document.querySelector('input[name="option"]:checked').value;
-        const price = currentOptions[selectedOption];
-        addToCart(currentItem.item, price, [selectedOption]);
-        closeModals();
-    }
+  function selectOption() {
+      const selectedOption = document.querySelector('input[name="option"]:checked').value;
+      const price = currentOptions[selectedOption];
+      addToCart(currentItem.item, price, [selectedOption]);
+      closeModals();
+  }
 
-    function selectSet() {
-        if (setItemCount === maxSetItems) {
-            const selectedItems = [];
-            for (let item in currentSetItems) {
-                if (currentSetItems[item] > 0) {
-                    selectedItems.push(`${item} x ${currentSetItems[item]}`);
-                }
-            }
-            addToCart(currentItem.item, currentItem.price, selectedItems);
-            closeModals();
-        } else {
-            alert(`꼬치구이를 ${maxSetItems}개 선택해주세요.`);
-        }
-    }
+  function selectSet() {
+      if (setItemCount === maxSetItems) {
+          const selectedItems = [];
+          for (let item in currentSetItems) {
+              if (currentSetItems[item] > 0) {
+                  selectedItems.push(`${item} x ${currentSetItems[item]}`);
+              }
+          }
+          addToCart(currentItem.item, currentItem.price, selectedItems);
+          closeModals();
+      } else {
+          alert(`꼬치구이를 ${maxSetItems}개 선택해주세요.`);
+      }
+  }
 
-    function getSkewers() {
-        return [
-            '츠쿠네', '닭 날개', '닭 가슴살', '명란마요 가슴살', '돼지 삼겹',
-            '닭 다리살&파', '닭 다리살', '항정살', '닭 목살', '감자&생크림',
-            '마늘', '표고버섯&완자', '옥수수', '새송이', '은행', '양송이 삼겹',
-            '팽이버섯 삼겹', '메추리알 삼겹', '아스파라 삼겹', '초생강 삼겹',
-            '마늘 삼겹', '토마토 삼겹', '막창', '닭 껍질', '염통'
-        ];
-    }
+  function getSkewers() {
+      return [
+          '츠쿠네', '닭 날개', '닭 가슴살', '명란마요 가슴살', '돼지 삼겹',
+          '닭 다리살&파', '닭 다리살', '항정살', '닭 목살', '감자&생크림',
+          '마늘', '표고버섯&완자', '옥수수', '새송이', '은행', '양송이 삼겹',
+          '팽이버섯 삼겹', '메추리알 삼겹', '아스파라 삼겹', '초생강 삼겹',
+          '마늘 삼겹', '토마토 삼겹', '막창', '닭 껍질', '염통'
+      ];
+  }
 
-    async function orderItems() {
-        if (cart.length === 0) {
-            alert("장바구니가 비어 있습니다.");
-            return;
-        }
+  async function orderItems() {
+      if (cart.length === 0) {
+          alert("장바구니가 비어 있습니다.");
+          return;
+      }
 
-        try {
-            const newOrderRef = database.ref('orders').push();
-            await newOrderRef.set({
-                table: '1번 테이블',
-                items: cart,
-                total: totalPrice,
-                timestamp: new Date().toISOString()
-            });
-            
-            alert("주문이 완료되었습니다.");
+      try {
+          const ordersRef = ref(database, 'orders');
+          const newOrderRef = push(ordersRef);
+          await set(newOrderRef, {
+              table: '1번 테이블',
+              items: cart,
+              total: totalPrice,
+              timestamp: new Date().toISOString()
+          });
+          
+          alert("주문이 완료되었습니다.");
 
-            if ("vibrate" in navigator) {
-                navigator.vibrate(200);
-            }
+          if ("vibrate" in navigator) {
+              navigator.vibrate(200);
+          }
 
-            const audio = new Audio('https://www.soundjay.com/button/beep-07.wav');
-            audio.play();
+          const audio = new Audio('https://www.soundjay.com/button/beep-07.wav');
+          audio.play();
 
-            cart = [];
-            updateCart();
-            closeCart();
-        } catch (error) {
-            console.error('Error placing order:', error);
-            alert('주문을 완료하는 데 문제가 발생했습니다. 다시 시도해 주세요.');
-        }
-    }
+          cart = [];
+          updateCart();
+          closeCart();
+      } catch (error) {
+          console.error('Error placing order:', error);
+          alert('주문을 완료하는 데 문제가 발생했습니다. 다시 시도해 주세요.');
+      }
+  }
 </script>
 
 </body>
