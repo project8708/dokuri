@@ -86,11 +86,12 @@
     const database = getDatabase(app);
     let cart = {};
 
-    function addToCart(item, price, options = null) {
-        if (options) {
-            item = `${item} (${options})`;
+    function addToCart(item, price) {
+        if (cart[item]) {
+            cart[item].quantity++;
+        } else {
+            cart[item] = { price, quantity: 1 };
         }
-        cart[item] = cart[item] ? { ...cart[item], quantity: cart[item].quantity + 1 } : { price, quantity: 1 };
         updateCartDisplay();
     }
 
@@ -103,40 +104,41 @@
         Object.entries(cart).forEach(([item, { price, quantity }]) => {
             const lineItem = document.createElement('div');
             lineItem.className = 'cart-item';
-            lineItem.innerHTML = `${item} - ${quantity} x ${price} = ${quantity * price}`;
-            cartContent.appendChild(lineItem);
+            lineItem.innerHTML = `<span>${item} - ${quantity} x ${price} = ${quantity * price}원</span>`;
 
             const minusButton = document.createElement('button');
             minusButton.innerText = '-';
-            minusButton.onclick = () => updateQuantity(item, -1);
+            minusButton.addEventListener('click', () => updateQuantity(item, -1));
             lineItem.appendChild(minusButton);
 
             const plusButton = document.createElement('button');
             plusButton.innerText = '+';
-            plusButton.onclick = () => updateQuantity(item, 1);
+            plusButton.addEventListener('click', () => updateQuantity(item, 1));
             lineItem.appendChild(plusButton);
 
-            total += quantity * price;
+            cartContent.appendChild(lineItem);
+            total += price * quantity;
         });
 
-        cartContent.innerHTML += `Total: ${total}`;
+        cartContent.innerHTML += `<div>Total: ${total}원</div>`;
         const closeButton = document.createElement('button');
         closeButton.innerText = 'Close';
-        closeButton.onclick = () => modal.style.display = 'none';
+        closeButton.addEventListener('click', () => modal.style.display = 'none');
         cartContent.appendChild(closeButton);
 
         const orderButton = document.createElement('button');
         orderButton.innerText = 'Order Now';
-        orderButton.onclick = () => placeOrder();
+        orderButton.addEventListener('click', placeOrder);
         cartContent.appendChild(orderButton);
     }
 
     function updateQuantity(item, change) {
-        if (cart[item]) {
+        if (cart[item] && (cart[item].quantity + change > 0)) {
             cart[item].quantity += change;
-            if (cart[item].quantity <= 0) delete cart[item];
-            updateCartDisplay();
+        } else if (cart[item]) {
+            delete cart[item];
         }
+        updateCartDisplay();
     }
 
     function placeOrder() {
@@ -145,7 +147,7 @@
             return;
         }
         const orderDetails = {
-            timestamp: new Date().toLocaleString(), // Current time added
+            timestamp: new Date().toLocaleString(),
             items: cart
         };
         const orderRef = ref(database, `orders/${Date.now()}`);
@@ -158,9 +160,19 @@
         });
     }
 
-    document.querySelector('.cart-icon').addEventListener('click', () => {
-        document.querySelector('.cart-modal').style.display = 'block';
-        updateCartDisplay();
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('button[data-addtocart]').forEach(button => {
+            button.addEventListener('click', () => {
+                const item = button.getAttribute('data-item');
+                const price = parseInt(button.getAttribute('data-price'), 10);
+                addToCart(item, price);
+            });
+        });
+
+        document.querySelector('.cart-icon').addEventListener('click', () => {
+            document.querySelector('.cart-modal').style.display = 'block';
+            updateCartDisplay();
+        });
     });
 </script>
 
