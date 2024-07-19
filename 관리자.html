@@ -28,51 +28,57 @@
 <script>
     let previousOrderCount = 0;
 
-    function loadOrders() {
+    async function loadOrders() {
         const adminOrders = document.getElementById('admin-orders');
-        const tableOrders = JSON.parse(localStorage.getItem('tableOrders')) || {};
-        const currentOrderCount = Object.keys(tableOrders).length;
+        try {
+            const response = await fetch('https://project8708.github.io/dokuri/orders');
+            const tableOrders = await response.json();
+            const currentOrderCount = Object.keys(tableOrders).length;
 
-        if (currentOrderCount > previousOrderCount) {
-            // 진동 알림
-            if ("vibrate" in navigator) {
-                navigator.vibrate(200);
+            if (currentOrderCount > previousOrderCount) {
+                // 진동 알림
+                if ("vibrate" in navigator) {
+                    navigator.vibrate(200);
+                }
+
+                // 소리 알림
+                const audio = new Audio('https://www.soundjay.com/button/beep-07.wav');
+                audio.play();
+
+                previousOrderCount = currentOrderCount;
             }
 
-            // 소리 알림
-            const audio = new Audio('https://www.soundjay.com/button/beep-07.wav');
-            audio.play();
+            if (Object.keys(tableOrders).length === 0) {
+                adminOrders.innerHTML = '<p>주문 내역이 없습니다.</p>';
+                return;
+            }
 
-            previousOrderCount = currentOrderCount;
+            adminOrders.innerHTML = Object.keys(tableOrders).map(table => `
+                <div class="order-item">
+                    <h3>${table}</h3>
+                    ${tableOrders[table].map(order => `
+                        <div>
+                            <p><strong>주문 시간:</strong> ${order.timestamp}</p>
+                            ${order.items.map(item => `
+                                <div>
+                                    ${item.item} - ${item.price}원 x ${item.quantity}
+                                </div>
+                            `).join('')}
+                            <p><strong>총 금액:</strong> ${order.total}원</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Error loading orders:', error);
+            adminOrders.innerHTML = '<p>주문 데이터를 불러오는 중 오류가 발생했습니다.</p>';
         }
-
-        if (Object.keys(tableOrders).length === 0) {
-            adminOrders.innerHTML = '<p>주문 내역이 없습니다.</p>';
-            return;
-        }
-
-        adminOrders.innerHTML = Object.keys(tableOrders).map(table => `
-            <div class="order-item">
-                <h3>${table}</h3>
-                ${tableOrders[table].map(order => `
-                    <div>
-                        <p><strong>주문 시간:</strong> ${order.timestamp}</p>
-                        ${order.items.map(item => `
-                            <div>
-                                ${item.item} - ${item.price}원 x ${item.quantity}
-                            </div>
-                        `).join('')}
-                        <p><strong>총 금액:</strong> ${order.total}원</p>
-                    </div>
-                `).join('')}
-            </div>
-        `).join('');
     }
 
     document.addEventListener('DOMContentLoaded', loadOrders);
 
-    // 10초마다 주문을 확인합니다.
-    setInterval(loadOrders, 10000);
+    // 5초마다 주문을 확인합니다.
+    setInterval(loadOrders, 5000);
 </script>
 
 </body>
