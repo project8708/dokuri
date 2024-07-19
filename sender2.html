@@ -147,12 +147,34 @@
             }
         }
 
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 모든 '주문하기' 버튼에 대한 이벤트 리스너 설정
+    const orderButtons = document.querySelectorAll('button[onclick="order()"]');
+    orderButtons.forEach(button => {
+        button.removeAttribute('onclick'); // HTML에서 onclick 속성 제거
+        button.addEventListener('click', order); // JavaScript를 사용하여 이벤트 리스너 추가
+    });
+
+    // 모든 '상품 추가' 버튼에 대한 이벤트 리스너 설정
+    const addToCartButtons = document.querySelectorAll('button[data-addtocart]');
+    addToCartButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const item = this.dataset.item;
+            const price = parseInt(this.dataset.price, 10);
+            addToCart(item, price);
+        });
+    });
+});
+
+// 'order' 함수 정의
 function order() {
     if (Object.keys(cart).length === 0) {
         alert('장바구니가 비었습니다.');
         return;
     }
-    
+
     const orderDetails = {
         timestamp: new Date().toISOString(),
         items: cart
@@ -170,39 +192,6 @@ function order() {
             alert('주문에 실패했습니다: ' + error.message);
         });
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    // 모든 주문하기 버튼에 이벤트 리스너 추가
-    const orderButtons = document.querySelectorAll('button[onclick="order()"]');
-    orderButtons.forEach(button => {
-        button.addEventListener('click', order);
-    });
-
-    // 모든 상품 추가 버튼에 이벤트 리스너 추가
-    const addToCartButtons = document.querySelectorAll('button[data-addtocart]');
-    addToCartButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const item = this.dataset.item;
-            const price = parseInt(this.dataset.price, 10);
-            addToCart(item, price);
-        });
-    });
-
-    // 다른 모든 버튼에 대해서도 비슷한 방법으로 이벤트 리스너를 추가
-    // 예: 옵션 보기, 수량 변경 등
-});
-
-// 기존에 모듈 스코프에 정의된 함수들
-function order() {
-    // 주문 로직
-}
-
-function addToCart(item, price) {
-    // 장바구니 추가 로직
-}
-
-// 추가적인 함수들...
-
 
     </script>
 </head>
