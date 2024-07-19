@@ -72,145 +72,98 @@
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
 
     const firebaseConfig = {
-        apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
-        authDomain: "acoustic-arch-320110.firebaseapp.com",
-        databaseURL: "https://acoustic-arch-320110-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "acoustic-arch-320110",
-        storageBucket: "acoustic-arch-320110.appspot.com",
-        messagingSenderId: "975479821242",
-        appId: "1:975479821242:web:a6b4d128893cdec1100383",
-        measurementId: "G-BGTD7LKT1C"
+        apiKey: "Your_API_Key",
+        authDomain: "Your_AuthDomain",
+        databaseURL: "Your_DatabaseURL",
+        projectId: "Your_ProjectID",
+        storageBucket: "Your_StorageBucket",
+        messagingSenderId: "Your_MessagingSenderID",
+        appId: "Your_AppID",
+        measurementId: "Your_MeasurementID"
     };
 
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
-
     let cart = {};
 
     function addToCart(item, price, options = null) {
         if (options) {
             item = `${item} (${options})`;
         }
-        if (cart[item]) {
-            cart[item].quantity += 1;
-        } else {
-            cart[item] = { price: price, quantity: 1 };
-        }
-        showNotification(`${item} added to cart.`);
-        updateCartIcon();
+        cart[item] = cart[item] ? { ...cart[item], quantity: cart[item].quantity + 1 } : { price, quantity: 1 };
+        updateCartDisplay();
     }
 
-    function showNotification(message) {
-        const notification = document.querySelector('.notification');
-        notification.textContent = message;
-        notification.style.display = 'block';
-        setTimeout(() => {
-            notification.style.display = 'none';
-        }, 2000);
-    }
-
-    function updateCartIcon() {
-        const cartIcon = document.querySelector('.cart-icon');
-        const itemCount = Object.keys(cart).reduce((sum, key) => sum + cart[key].quantity, 0);
-        cartIcon.textContent = `Cart (${itemCount})`;
-    }
-
-    function showCart() {
+    function updateCartDisplay() {
         const modal = document.querySelector('.cart-modal');
-        const cartContent = document.querySelector('.cart-content');
+        const cartContent = modal.querySelector('.cart-content');
         cartContent.innerHTML = '';
         let total = 0;
 
-        for (const [item, { price, quantity }] of Object.entries(cart)) {
-            total += price * quantity;
-            const cartItem = document.createElement('div');
-            cartItem.className = 'cart-item';
-            cartItem.innerHTML = `<span>${item} x${quantity}</span><span>${price * quantity}원</span>`;
-            
+        Object.entries(cart).forEach(([item, { price, quantity }]) => {
+            const lineItem = document.createElement('div');
+            lineItem.className = 'cart-item';
+            lineItem.innerHTML = `${item} - ${quantity} x ${price} = ${quantity * price}`;
+            cartContent.appendChild(lineItem);
+
             const minusButton = document.createElement('button');
-            minusButton.textContent = '-';
-            minusButton.onclick = () => updateQuantity(item, price, -1);
+            minusButton.innerText = '-';
+            minusButton.onclick = () => updateQuantity(item, -1);
+            lineItem.appendChild(minusButton);
 
             const plusButton = document.createElement('button');
-            plusButton.textContent = '+';
-            plusButton.onclick = () => updateQuantity(item, price, 1);
+            plusButton.innerText = '+';
+            plusButton.onclick = () => updateQuantity(item, 1);
+            lineItem.appendChild(plusButton);
 
-            cartItem.appendChild(minusButton);
-            cartItem.appendChild(plusButton);
-            cartContent.appendChild(cartItem);
-        }
-        cartContent.innerHTML += `<div>Total: ${total}원</div>`;
+            total += quantity * price;
+        });
+
+        cartContent.innerHTML += `Total: ${total}`;
+        const closeButton = document.createElement('button');
+        closeButton.innerText = 'Close';
+        closeButton.onclick = () => modal.style.display = 'none';
+        cartContent.appendChild(closeButton);
 
         const orderButton = document.createElement('button');
-        orderButton.textContent = '주문하기';
-        orderButton.onclick = order;
+        orderButton.innerText = 'Order Now';
+        orderButton.onclick = () => placeOrder();
         cartContent.appendChild(orderButton);
-
-        modal.style.display = 'block';
     }
 
-    function updateQuantity(item, price, change) {
+    function updateQuantity(item, change) {
         if (cart[item]) {
             cart[item].quantity += change;
-            if (cart[item].quantity <= 0) {
-                delete cart[item];
-            }
-            showCart();
-            updateCartIcon();
+            if (cart[item].quantity <= 0) delete cart[item];
+            updateCartDisplay();
         }
     }
 
-    function order() {
-    if (Object.keys(cart).length === 0) {
-        alert('장바구니가 비었습니다.');
-        return;
-    }
-
-    // Replace invalid characters in the Firebase path
-    const timestamp = new Date().toISOString().replace(/[\.\:\-]/g, ''); // Remove periods, colons, and dashes
-    const orderDetails = {
-        timestamp: timestamp,
-        items: cart
-    };
-
-    // Use the cleaned timestamp for the Firebase path
-    const orderRef = ref(database, 'orders/' + timestamp);
-    set(orderRef, orderDetails)
-        .then(() => {
-            alert('주문이 완료되었습니다.');
+    function placeOrder() {
+        if (Object.keys(cart).length === 0) {
+            alert('Cart is empty');
+            return;
+        }
+        const orderDetails = {
+            timestamp: new Date().toLocaleString(), // Current time added
+            items: cart
+        };
+        const orderRef = ref(database, `orders/${Date.now()}`);
+        set(orderRef, orderDetails).then(() => {
+            alert('Order placed successfully');
             cart = {};
-            updateCartIcon();
-            closeCart();
-        })
-        .catch((error) => {
-            alert('주문에 실패했습니다: ' + error.message);
+            updateCartDisplay();
+        }).catch(error => {
+            alert(`Order failed: ${error.message}`);
         });
-}
-
-
-    function closeCart() {
-        const modal = document.querySelector('.cart-modal');
-        modal.style.display = 'none';
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelector('.cart-icon').addEventListener('click', showCart);
-        document.querySelectorAll('button[data-addtocart]').forEach(button => {
-            button.addEventListener('click', function() {
-                const item = this.dataset.item;
-                const price = parseInt(this.dataset.price, 10);
-                addToCart(item, price);
-            });
-        });
-
-        // Remove any existing onclick handlers that may cause issues
-        document.querySelectorAll('[onclick]').forEach(element => {
-            const functionName = element.getAttribute('onclick');
-            element.removeAttribute('onclick');
-            element.addEventListener('click', window[functionName]);
-        });
+    document.querySelector('.cart-icon').addEventListener('click', () => {
+        document.querySelector('.cart-modal').style.display = 'block';
+        updateCartDisplay();
     });
 </script>
+
 
 
 
