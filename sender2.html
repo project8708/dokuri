@@ -75,14 +75,7 @@
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
 
     const firebaseConfig = {
-        apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
-        authDomain: "acoustic-arch-320110.firebaseapp.com",
-        databaseURL: "https://acoustic-arch-320110-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "acoustic-arch-320110",
-        storageBucket: "acoustic-arch-320110.appspot.com",
-        messagingSenderId: "975479821242",
-        appId: "1:975479821242:web:a6b4d128893cdec1100383",
-        measurementId: "G-BGTD7LKT1C"
+        // Your Firebase Configuration
     };
 
     const app = initializeApp(firebaseConfig);
@@ -125,11 +118,6 @@
         });
 
         cartContent.innerHTML += `<div>Total: ${total}원</div>`;
-
-        const orderButton = document.createElement('button');
-        orderButton.innerText = 'Order Now';
-        orderButton.addEventListener('click', placeOrder);
-        cartContent.appendChild(orderButton);
     }
 
     function updateQuantity(item, change) {
@@ -139,25 +127,6 @@
             delete cart[item];
         }
         updateCartDisplay();
-    }
-
-    function placeOrder() {
-        if (Object.keys(cart).length === 0) {
-            alert('Cart is empty');
-            return;
-        }
-        const orderDetails = {
-            timestamp: new Date().toLocaleString(),
-            items: cart
-        };
-        const orderRef = ref(database, `orders/${Date.now()}`);
-        set(orderRef, orderDetails).then(() => {
-            alert('Order placed successfully');
-            cart = {};
-            updateCartDisplay();
-        }).catch(error => {
-            alert(`Order failed: ${error.message}`);
-        });
     }
 
     function showNotification(message) {
@@ -176,12 +145,18 @@
             });
         });
 
+        const cartModal = document.querySelector('.cart-modal');
         document.querySelector('.cart-icon').addEventListener('click', () => {
-            document.querySelector('.cart-modal').style.display = 'block';
-            updateCartDisplay();
+            cartModal.style.display = 'block';
+        });
+        window.addEventListener('click', (event) => {
+            if (event.target === cartModal) {
+                cartModal.style.display = 'none';
+            }
         });
     });
 </script>
+
 
 
 
