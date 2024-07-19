@@ -1,44 +1,255 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <title>Data Sender</title>
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Menu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .menu-section {
+            margin-bottom: 20px;
+        }
+        .menu-section h2 {
+            background-color: #f4f4f4;
+            padding: 10px;
+        }
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .cart-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #007BFF;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .option-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        .option-modal h3 {
+            margin-top: 0;
+        }
+    </style>
+    <script>
+        let cart = {};
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
-            authDomain: "acoustic-arch-320110.firebaseapp.com",
-            databaseURL: "https://acoustic-arch-320110-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "acoustic-arch-320110",
-            storageBucket: "acoustic-arch-320110.appspot.com",
-            messagingSenderId: "975479821242",
-            appId: "1:975479821242:web:a6b4d128893cdec1100383",
-            measurementId: "G-BGTD7LKT1C"
-        };
+        function addToCart(item, price, options = null) {
+            if (options) {
+                item = `${item} (${options})`;
+            }
+            if (cart[item]) {
+                cart[item].quantity += 1;
+            } else {
+                cart[item] = { price: price, quantity: 1 };
+            }
+            showNotification(`${item} added to cart.`);
+            updateCartIcon();
+        }
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
+        function showNotification(message) {
+            const notification = document.querySelector('.notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
 
-        // Define the sendData function and attach it to the window object
-        window.sendData = function() {
-            const data = document.getElementById('dataInput').value;
-            set(ref(database, 'data'), {
-                message: data
-            }).then(() => {
-                alert('Data sent successfully!');
-            }).catch((error) => {
-                alert('Failed to send data: ' + error.message);
-            });
-        };
+        function updateCartIcon() {
+            const cartIcon = document.querySelector('.cart-icon');
+            const itemCount = Object.keys(cart).reduce((sum, key) => sum + cart[key].quantity, 0);
+            cartIcon.textContent = `Cart (${itemCount})`;
+        }
+
+        function showCart() {
+            let cartContent = '';
+            let total = 0;
+            for (const [item, { price, quantity }] of Object.entries(cart)) {
+                cartContent += `<div>${item} x${quantity} - ${price * quantity}원</div>`;
+                total += price * quantity;
+            }
+            cartContent += `<div>Total: ${total}원</div>`;
+            alert(cartContent);
+        }
+
+        function showOptions(item, price, options) {
+            const modal = document.querySelector('.option-modal');
+            const optionsContainer = document.querySelector('.options-container');
+            optionsContainer.innerHTML = options.map(option => `
+                <div>
+                    <input type="radio" name="option" value="${option}">
+                    <label>${option}</label>
+                </div>
+            `).join('');
+            document.querySelector('#add-option-btn').onclick = function() {
+                const selectedOption = document.querySelector('input[name="option"]:checked').value;
+                addToCart(item, price, selectedOption);
+                modal.style.display = 'none';
+            };
+            modal.style.display = 'block';
+        }
+
+        function closeOptions() {
+            const modal = document.querySelector('.option-modal');
+            modal.style.display = 'none';
+        }
     </script>
 </head>
 <body>
-    <h1>Data Sender</h1>
-    <input type="text" id="dataInput" placeholder="Enter your data here">
-    <button onclick="sendData()">Send Data</button>
+    <h1>Menu</h1>
+
+    <div class="menu-section" id="꼬치구이">
+        <h2>꼬치구이</h2>
+        <div class="menu-item"><span>츠쿠네</span><span>5,500원 <button onclick="addToCart('츠쿠네', 5500)">Add</button></span></div>
+        <div class="menu-item"><span>닭 날개</span><span>4,500원 <button onclick="addToCart('닭 날개', 4500)">Add</button></span></div>
+        <div class="menu-item"><span>닭 가슴살</span><span>4,000원 <button onclick="addToCart('닭 가슴살', 4000)">Add</button></span></div>
+        <div class="menu-item"><span>명란마요 가슴살</span><span>5,000원 <button onclick="addToCart('명란마요 가슴살', 5000)">Add</button></span></div>
+        <div class="menu-item"><span>돼지 삼겹</span><span>4,000원 <button onclick="addToCart('돼지 삼겹', 4000)">Add</button></span></div>
+        <div class="menu-item"><span>닭 다리살&파</span><span>5,000원 <button onclick="addToCart('닭 다리살&파', 5000)">Add</button></span></div>
+        <div class="menu-item"><span>닭 다리살</span><span>5,000원 <button onclick="addToCart('닭 다리살', 5000)">Add</button></span></div>
+        <div class="menu-item"><span>항정살</span><span>4,500원 <button onclick="addToCart('항정살', 4500)">Add</button></span></div>
+        <div class="menu-item"><span>닭 목살</span><span>4,000원 <button onclick="addToCart('닭 목살', 4000)">Add</button></span></div>
+        <div class="menu-item"><span>감자&생크림</span><span>4,000원 <button onclick="addToCart('감자&생크림', 4000)">Add</button></span></div>
+        <div class="menu-item"><span>마늘</span><span>3,000원 <button onclick="addToCart('마늘', 3000)">Add</button></span></div>
+        <div class="menu-item"><span>표고버섯&완자</span><span>5,000원 <button onclick="addToCart('표고버섯&완자', 5000)">Add</button></span></div>
+        <div class="menu-item"><span>옥수수</span><span>5,000원 <button onclick="addToCart('옥수수', 5000)">Add</button></span></div>
+        <div class="menu-item"><span>새송이</span><span>4,000원 <button onclick="addToCart('새송이', 4000)">Add</button></span></div>
+        <div class="menu-item"><span>은행</span><span>4,000원 <button onclick="addToCart('은행', 4000)">Add</button></span></div>
+        <div class="menu-item"><span>양송이 삼겹</span><span>4,000원 <button onclick="addToCart('양송이 삼겹', 4000)">Add</button></span></div>
+        <div class="menu-item"><span>팽이버섯 삼겹</span><span>4,000원 <button onclick="addToCart('팽이버섯 삼겹', 4000)">Add</button></span></div>
+        <div class="menu-item"><span>메추리알 삼겹</span><span>4,000원 <button onclick="addToCart('메추리알 삼겹', 4000)">Add</button></span></div>
+        <div class="menu-item"><span>아스파라 삼겹</span><span>4,000원 <button onclick="addToCart('아스파라 삼겹', 4000)">Add</button></span></div>
+        <div class="menu-item"><span>초생강 삼겹</span><span>4,000원 <button onclick="addToCart('초생강 삼겹', 4000)">Add</button></span></div>
+        <div class="menu-item"><span>마늘 삼겹</span><span>4,000원 <button onclick="addToCart('마늘 삼겹', 4000)">Add</button></span></div>
+        <div class="menu-item"><span>토마토 삼겹</span><span>4,000원 <button onclick="addToCart('토마토 삼겹', 4000)">Add</button></span></div>
+        <div class="menu-item"><span>막창</span><span>4,000원 <button onclick="addToCart('막창', 4000)">Add</button></span></div>
+        <div class="menu-item"><span>닭 껍질</span><span>3,500원 <button onclick="addToCart('닭 껍질', 3500)">Add</button></span></div>
+        <div class="menu-item"><span>염통</span><span>3,500원 <button onclick="addToCart('염통', 3500)">Add</button></span></div>
+        <div class="menu-item"><span>새우</span><span>3,500원 <button onclick="addToCart('새우', 3500)">Add</button></span></div>
+        <div class="menu-item"><span>소등심</span><span>5,500원 <button onclick="addToCart('소등심', 5500)">Add</button></span></div>
+        <div class="menu-item"><span>닭 물령뼈</span><span>4,500원 <button onclick="addToCart('닭 물령뼈', 4500)">Add</button></span></div>
+        <div class="menu-item"><span>양송이</span><span>4,000원 <button onclick="addToCart('양송이', 4000)">Add</button></span></div>
+    </div>
+
+    <div class="menu-section" id="일품요리">
+        <h2>일품요리</h2>
+        <div class="menu-item"><span>연어 사시미</span><span>28,000원 ~ 45,000원 <button onclick="showOptions('연어 사시미', 28000, ['소', '중', '대'])">Add</button></span></div>
+        <div class="menu-item"><span>오꼬노미야끼</span><span>19,000원 <button onclick="addToCart('오꼬노미야끼', 19000)">Add</button></span></div>
+        <div class="menu-item"><span>삼겹 숙주 볶음</span><span>18,000원 <button onclick="addToCart('삼겹 숙주 볶음', 18000)">Add</button></span></div>
+        <div class="menu-item"><span>소고기 타다끼</span><span>27,000원 <button onclick="addToCart('소고기 타다끼', 27000)">Add</button></span></div>
+    </div>
+
+    <div class="menu-section" id="숯불구이">
+        <h2>숯불구이</h2>
+        <div class="menu-item"><span>명란 숯불구이</span><span>10,000원 <button onclick="addToCart('명란 숯불구이', 10000)">Add</button></span></div>
+        <div class="menu-item"><span>메로 숯불구이</span><span>26,000원 <button onclick="addToCart('메로 숯불구이', 26000)">Add</button></span></div>
+        <div class="menu-item"><span>닭 목살 숯불구이</span><span>17,000원 <button onclick="addToCart('닭 목살 숯불구이', 17000)">Add</button></span></div>
+        <div class="menu-item"><span>시사모 숯불구이</span><span>10,000원 <button onclick="addToCart('시사모 숯불구이', 10000)">Add</button></span></div>
+    </div>
+
+    <div class="menu-section" id="탕류">
+        <h2>탕류</h2>
+        <div class="menu-item"><span>나가사키 해물탕</span><span>21,000원 <button onclick="addToCart('나가사키 해물탕', 21000)">Add</button></span></div>
+        <div class="menu-item"><span>간사이 오뎅탕</span><span>18,000원 <button onclick="addToCart('간사이 오뎅탕', 18000)">Add</button></span></div>
+        <div class="menu-item"><span>카레 나베</span><span>22,000원 <button onclick="addToCart('카레 나베', 22000)">Add</button></span></div>
+        <div class="menu-item"><span>면사리</span><span>2,000원 <button onclick="addToCart('면사리', 2000)">Add</button></span></div>
+        <div class="menu-item"><span>공기밥</span><span>2,000원 <button onclick="addToCart('공기밥', 2000)">Add</button></span></div>
+    </div>
+
+    <div class="menu-section" id="튀김">
+        <h2>튀김</h2>
+        <div class="menu-item"><span>닭 가라아게</span><span>18,000원 <button onclick="addToCart('닭 가라아게', 18000)">Add</button></span></div>
+        <div class="menu-item"><span>닭 물령뼈 가라아게</span><span>19,000원 <button onclick="addToCart('닭 물령뼈 가라아게', 19000)">Add</button></span></div>
+        <div class="menu-item"><span>닭껍질 가라아게</span><span>15,000원 <button onclick="addToCart('닭껍질 가라아게', 15000)">Add</button></span></div>
+        <div class="menu-item"><span>아게다시 도후</span><span>13,000원 <button onclick="addToCart('아게다시 도후', 13000)">Add</button></span></div>
+    </div>
+
+    <div class="menu-section" id="샐러드">
+        <h2>샐러드</h2>
+        <div class="menu-item"><span>연어 샐러드</span><span>16,000원 <button onclick="addToCart('연어 샐러드', 16000)">Add</button></span></div>
+        <div class="menu-item"><span>토마토 샐러드</span><span>11,000원 <button onclick="addToCart('토마토 샐러드', 11000)">Add</button></span></div>
+    </div>
+
+    <div class="menu-section" id="쯔께">
+        <h2>쯔께</h2>
+        <div class="menu-item"><span>복분자 절임 토마토</span><span>4,000원 <button onclick="addToCart('복분자 절임 토마토', 4000)">Add</button></span></div>
+        <div class="menu-item"><span>타코 와사비</span><span>10,000원 <button onclick="addToCart('타코 와사비', 10000)">Add</button></span></div>
+    </div>
+
+    <div class="menu-section" id="식사">
+        <h2>식사</h2>
+        <div class="menu-item"><span>카레 우동</span><span>10,000원 <button onclick="addToCart('카레 우동', 10000)">Add</button></span></div>
+        <div class="menu-item"><span>카레 라이스</span><span>11,000원 <button onclick="addToCart('카레 라이스', 11000)">Add</button></span></div>
+        <div class="menu-item"><span>규동</span><span>9,000원 <button onclick="addToCart('규동', 9000)">Add</button></span></div>
+        <div class="menu-item"><span>공기밥</span><span>2,000원 <button onclick="addToCart('공기밥', 2000)">Add</button></span></div>
+    </div>
+
+    <div class="menu-section" id="주류">
+        <h2>주류</h2>
+        <div class="menu-item"><span>센노 유메 14%</span><span>5,000원 ~ 55,000원 <button onclick="showOptions('센노 유메 14%', 5000, ['잔술', '도쿠리', '1.8L'])">Add</button></span></div>
+        <div class="menu-item"><span>간바레 오또상</span><span>36,000원 <button onclick="addToCart('간바레 오또상', 36000)">Add</button></span></div>
+        <div class="menu-item"><span>월계관 준마이</span><span>35,000원 <button onclick="addToCart('월계관 준마이', 35000)">Add</button></span></div>
+        <div class="menu-item"><span>사쿠라 준마이</span><span>45,000원 <button onclick="addToCart('사쿠라 준마이', 45000)">Add</button></span></div>
+        <div class="menu-item"><span>월계관 준마이 다이긴죠</span><span>85,000원 <button onclick="addToCart('월계관 준마이 다이긴죠', 85000)">Add</button></span></div>
+        <div class="menu-item"><span>닷사이 준마이 다이긴죠</span><span>100,000원 <button onclick="addToCart('닷사이 준마이 다이긴죠', 100000)">Add</button></span></div>
+        <div class="menu-item"><span>비잔 클리어 25%</span><span>50,000원 <button onclick="addToCart('비잔 클리어 25%', 50000)">Add</button></span></div>
+        <div class="menu-item"><span>텐손 코우린 25%</span><span>80,000원 <button onclick="addToCart('텐손 코우린 25%', 80000)">Add</button></span></div>
+        <div class="menu-item"><span>화요 25</span><span>27,000원 <button onclick="addToCart('화요 25', 27000)">Add</button></span></div>
+        <div class="menu-item"><span>화요 41</span><span>60,000원 <button onclick="addToCart('화요 41', 60000)">Add</button></span></div>
+        <div class="menu-item"><span>화요set</span><span>3,000원 <button onclick="addToCart('화요set', 3000)">Add</button></span></div>
+        <div class="menu-item"><span>산토리 가쿠빈</span><span>100,000원 <button onclick="addToCart('산토리 가쿠빈', 100000)">Add</button></span></div>
+        <div class="menu-item"><span>삿포로 생맥주</span><span>8,000원 <button onclick="addToCart('삿포로 생맥주', 8000)">Add</button></span></div>
+        <div class="menu-item"><span>소주</span><span>5,000원 <button onclick="showOptions('소주', 5000, ['대선', '참이슬', '좋은데이'])">Add</button></span></div>
+        <div class="menu-item"><span>맥주</span><span>5,000원 <button onclick="showOptions('맥주', 5000, ['카스', '테라'])">Add</button></span></div>
+        <div class="menu-item"><span>청하</span><span>6,000원 <button onclick="addToCart('청하', 6000)">Add</button></span></div>
+        <div class="menu-item"><span>산토리 하이볼</span><span>9,000원 <button onclick="addToCart('산토리 하이볼', 9000)">Add</button></span></div>
+        <div class="menu-item"><span>레몬사와</span><span>9,000원 <button onclick="addToCart('레몬사와', 9000)">Add</button></span></div>
+    </div>
+
+    <div class="menu-section" id="음료">
+        <h2>음료</h2>
+        <div class="menu-item"><span>음료</span><span>2,500원 <button onclick="showOptions('음료', 2500, ['제로콜라', '사이다', '토닉워터', '진저에일'])">Add</button></span></div>
+        <div class="menu-item"><span>우롱차</span><span>2,500원 <button onclick="showOptions('우롱차', 2500, ['Hot', 'Ice'])">Add</button></span></div>
+    </div>
+
+    <div class="menu-section" id="기타">
+        <h2>기타</h2>
+        <div class="menu-item"><span>레몬 슬라이스(1/2)</span><span>1,000원 <button onclick="addToCart('레몬 슬라이스(1/2)', 1000)">Add</button></span></div>
+    </div>
+
+    <div class="cart-icon" onclick="showCart()">Cart (0)</div>
+    <div class="notification"></div>
+
+    <div class="option-modal">
+        <h3>옵션 선택</h3>
+        <div class="options-container"></div>
+        <button id="add-option-btn">추가</button>
+        <button onclick="closeOptions()">닫기</button>
+    </div>
 </body>
 </html>
