@@ -35,11 +35,17 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.7);
             color: white;
             padding: 10px;
             border-radius: 5px;
             display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .show-notification {
+            display: block;
+            opacity: 1;
         }
         .option-modal, .cart-modal {
             position: fixed;
@@ -72,14 +78,14 @@
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
-            authDomain: "acoustic-arch-320110.firebaseapp.com",
-            databaseURL: "https://acoustic-arch-320110-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "acoustic-arch-320110",
-            storageBucket: "acoustic-arch-320110.appspot.com",
-            messagingSenderId: "975479821242",
-            appId: "1:975479821242:web:a6b4d128893cdec1100383",
-            measurementId: "G-BGTD7LKT1C"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -132,8 +138,10 @@
         function updateQuantity(item, change) {
             if (cart[item] && (cart[item].quantity + change > 0)) {
                 cart[item].quantity += change;
+                showNotification(item + " quantity updated.");
             } else if (cart[item]) {
                 delete cart[item];
+                showNotification(item + " removed from cart.");
             }
             updateCartDisplay();
         }
@@ -141,8 +149,8 @@
         function showNotification(message) {
             const notification = document.querySelector('.notification');
             notification.textContent = message;
-            notification.style.display = 'block';
-            setTimeout(() => notification.style.display = 'none', 2000);
+            notification.classList.add('show-notification');
+            setTimeout(() => notification.classList.remove('show-notification'), 2000);
         }
 
         function sendOrder() {
@@ -204,7 +212,7 @@
     </script>
 </head>
 <body>
-    <h1>Menu</h1>
+<h1>Menu</h1>
 
     <div class="menu-section" id="꼬치구이">
         <h2>꼬치구이</h2>
@@ -331,7 +339,6 @@
     <div class="option-modal">
         <h3>옵션 선택</h3>
         <div class="options-container"></div>
-        <button id="add-option-btn">추가</button>
         <button onclick="closeOptions()">닫기</button>
     </div>
 
