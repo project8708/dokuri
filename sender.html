@@ -23,7 +23,8 @@
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-        function sendData() {
+        // Define the sendData function and attach it to the window object
+        window.sendData = function() {
             const data = document.getElementById('dataInput').value;
             set(ref(database, 'data'), {
                 message: data
@@ -32,7 +33,7 @@
             }).catch((error) => {
                 alert('Failed to send data: ' + error.message);
             });
-        }
+        };
     </script>
 </head>
 <body>
