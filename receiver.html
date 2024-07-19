@@ -2,11 +2,11 @@
 <html>
 <head>
     <title>Data Receiver</title>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
 
-        const firebaseConfig = {
+    const firebaseConfig = {
             apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
             authDomain: "acoustic-arch-320110.firebaseapp.com",
             databaseURL: "https://acoustic-arch-320110-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -15,38 +15,41 @@
             messagingSenderId: "975479821242",
             appId: "1:975479821242:web:a6b4d128893cdec1100383",
             measurementId: "G-BGTD7LKT1C"
-        };
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
 
-        function fetchData() {
-            const ordersRef = ref(database, 'orders');
-            onValue(ordersRef, (snapshot) => {
-                const data = snapshot.val();
-                const dataDisplay = document.getElementById('dataDisplay');
-                dataDisplay.innerHTML = '';
-                if (data) {
-                    Object.entries(data).forEach(([timestamp, order]) => {
-                        const orderElement = document.createElement('div');
-                        orderElement.innerHTML = `
-                            <h3>Order at ${new Date(timestamp).toLocaleString()}</h3>
-                            <ul>
-                                ${Object.entries(order.items).map(([item, details]) => `<li>${item}: ${details.quantity} x ${details.price}원</li>`).join('')}
-                            </ul>
-                        `;
-                        dataDisplay.appendChild(orderElement);
-                    });
-                } else {
-                    dataDisplay.innerText = 'No orders received';
-                }
-            }, (error) => {
-                alert('Failed to fetch data: ' + error.message);
-            });
-        }
+    function fetchData() {
+        const ordersRef = ref(database, 'orders');
+        onValue(ordersRef, (snapshot) => {
+            const data = snapshot.val();
+            const dataDisplay = document.getElementById('dataDisplay');
+            dataDisplay.innerHTML = '';
+            if (data) {
+                // 데이터를 시간순으로 정렬합니다.
+                const sortedData = Object.entries(data).sort((a, b) => a[0] - b[0]);
+                sortedData.forEach(([timestamp, order]) => {
+                    const orderElement = document.createElement('div');
+                    orderElement.innerHTML = `
+                        <h3>Order at ${new Date(timestamp).toLocaleString()}</h3>
+                        <ul>
+                            ${Object.entries(order.items).map(([item, details]) => `<li>${item}: ${details.quantity} x ${details.price}원</li>`).join('')}
+                        </ul>
+                    `;
+                    dataDisplay.appendChild(orderElement);
+                });
+            } else {
+                dataDisplay.innerText = 'No orders received';
+            }
+        }, (error) => {
+            alert('Failed to fetch data: ' + error.message);
+        });
+    }
 
-        window.onload = fetchData;
-    </script>
+    window.onload = fetchData;
+</script>
+
 </head>
 <body>
     <h1>Data Receiver</h1>
