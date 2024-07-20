@@ -1,7 +1,8 @@
+
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js';
 import { getDatabase, ref, set } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js';
 
-  const firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
     authDomain: "acoustic-arch-320110.firebaseapp.com",
     databaseURL: "https://acoustic-arch-320110-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -23,6 +24,7 @@ function addToCart(item, price) {
     }
     cart[item].quantity++;
     updateCartDisplay();
+    showNotification(`${item} has been added to your cart.`);
 }
 
 function updateCartDisplay() {
@@ -51,54 +53,37 @@ function sendOrder() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('button[data-addtocart]').forEach(button => {
+    document.querySelectorAll('[data-addtocart]').forEach(button => {
         button.addEventListener('click', () => {
             const item = button.getAttribute('data-item');
-            const price = parseInt(button.getAttribute('data-price'), 10);
-            if (['연어 사시미', '센노 유메 14%', '소주', '맥주', '음료', '우롱차'].includes(item)) {
-                showOptions(item, price, ['Option1', 'Option2', 'Option3']); // Add appropriate options here
-            } else {
-                addToCart(item, price);
-            }
+            const price = parseInt(button.getAttribute('data-price'));
+            addToCart(item, price);
         });
-    });
-
-    const cartModal = document.querySelector('.cart-modal');
-    document.querySelector('.cart-icon').addEventListener('click', () => {
-        cartModal.style.display = 'block';
-    });
-
-    document.querySelector('.order-button').addEventListener('click', () => {
-        sendOrder();
-    });
-
-    window.addEventListener('click', (event) => {
-        if (event.target !== cartModal && !cartModal.contains(event.target) && event.target !== document.querySelector('.cart-icon')) {
-            cartModal.style.display = 'none';
-        }
     });
 });
 
+function showOptions() {
+    console.log('Options shown');
+    // Implement the functionality as needed
+}
+
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.classList.add('hide');
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 1000);
+    }, 3000);
+}
+
 function closeCart() {
-    document.querySelector('.cart-modal').style.display = 'none';
-}
-
-function showOptions(item, price, options) {
-    const modal = document.querySelector('.option-modal');
-    const optionsContainer = modal.querySelector('.options-container');
-    optionsContainer.innerHTML = '';
-    options.forEach(option => {
-        const button = document.createElement('button');
-        button.textContent = option;
-        button.addEventListener('click', () => {
-            addToCart(`${item} (${option})`, price);
-            modal.style.display = 'none';
-        });
-        optionsContainer.appendChild(button);
-    });
-    modal.style.display = 'block';
-}
-
-function closeOptions() {
-    document.querySelector('.option-modal').style.display = 'none';
+    const cartContainer = document.querySelector('.cart-container');
+    if (cartContainer) {
+        cartContainer.style.display = 'none';
+    }
 }
