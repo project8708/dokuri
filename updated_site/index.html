@@ -129,15 +129,16 @@
     </div>
     <div class="cart-icon" aria-label="Shopping Cart">Cart (0)</div>
     <div class="notification" role="alert"></div>
-    <div class="option-modal">
-        <h3>옵션 선택</h3>
-        <div class="options-container"></div>
-        <button onclick="closeOptions()">닫기</button>
-    </div>
-    <div class="cart-modal">
-        <h3>장바구니</h3>
-        <div class="cart-content"></div>
-    </div>
+<div class="option-modal">
+    <div class="options-container"></div>
+    <button onclick="closeOptions()">Close</button>
+</div>
+<div class="cart-modal">
+    <div class="cart-items"></div>
+    <div class="cart-total"></div>
+    <button class="order-button">주문하기</button>
+    <button onclick="closeCart()">Close</button>
+</div>
     <script src="app.js" type="module"></script>
 </body>
 </html>

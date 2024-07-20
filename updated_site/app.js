@@ -1,3 +1,19 @@
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js';
+import { getDatabase, ref, set } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
+    authDomain: "acoustic-arch-320110.firebaseapp.com",
+    databaseURL: "https://acoustic-arch-320110-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "acoustic-arch-320110",
+    storageBucket: "acoustic-arch-320110.appspot.com",
+    messagingSenderId: "975479821242",
+    appId: "1:975479821242:web:a6b4d128893cdec1100383",
+    measurementId: "G-BGTD7LKT1C"
+};
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
 let cart = {};
 
@@ -39,13 +55,21 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', () => {
             const item = button.getAttribute('data-item');
             const price = parseInt(button.getAttribute('data-price'), 10);
-            addToCart(item, price);
+            if (['연어 사시미', '센노 유메 14%', '소주', '맥주', '음료', '우롱차'].includes(item)) {
+                showOptions(item, price, ['Option1', 'Option2', 'Option3']); // Add appropriate options here
+            } else {
+                addToCart(item, price);
+            }
         });
     });
 
     const cartModal = document.querySelector('.cart-modal');
     document.querySelector('.cart-icon').addEventListener('click', () => {
         cartModal.style.display = 'block';
+    });
+
+    document.querySelector('.order-button').addEventListener('click', () => {
+        sendOrder();
     });
 
     window.addEventListener('click', (event) => {
