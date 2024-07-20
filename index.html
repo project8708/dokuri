@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Order Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .menu-item { margin: 10px; padding: 5px; }
+        .button { cursor: pointer; }
+        .cart-icon { position: fixed; top: 10px; right: 10px; cursor: pointer; }
+        .modal { display: none; position: fixed; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); }
+        .modal-content { background-color: #fff; margin: 15% auto; padding: 20px; width: 80%; }
+    </style>
+</head>
+<body>
+    <div class="cart-icon" onclick="toggleCart()">🛒</div>
+
+    <!-- Menu items -->
+    <div class="menu-item">
+        <span>삼겹 숙주 볶음 - 18,000원</span>
+        <button class="button" onclick="addToCart('삼겹 숙주 볶음', 18000)">+</button>
+    </div>
+    <!-- Items with options -->
+    <div class="menu-item">
+        <span>연어 사시미</span>
+        <button class="button" onclick="showOptions('연어 사시미')">+</button>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal">
+        <div class="modal-content">
+            <h2>Your Cart</h2>
+            <div id="cartItems"></div>
+            <button onclick="submitOrder()">주문하기</button>
+        </div>
+    </div>
+
+    <!-- Options Modal for Salmon Sashimi -->
+    <div id="salmonOptions" class="modal">
+        <div class="modal-content">
+            <h3>연어 사시미 옵션</h3>
+            <button onclick="addToCart('연어 사시미 (소)', 28000)">소 - 28,000원</button>
+            <button onclick="addToCart('연어 사시미 (중)', 36000)">중 - 36,000원</button>
+            <button onclick="addToCart('연어 사시미 (대)', 45000)">대 - 45,000원</button>
+        </div>
+    </div>
+
+    <!-- Firebase Integration -->
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-database.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        // Cart functions
+        var cart = [];
+
+        function addToCart(item, price) {
+            cart.push({ item, price });
+            alert('Added to cart!');
+        }
+
+        function showOptions(item) {
+            // Show options modal based on item
+            if (item === '연어 사시미') {
+                document.getElementById('salmonOptions').style.display = 'block';
+            }
+        }
+
+        function toggleCart() {
+            // Toggle cart modal visibility
+            var cartModal = document.getElementById('cartModal');
+            var display = cartModal.style.display;
+            cartModal.style.display = display === 'none' ? 'block' : 'none';
+            displayCartItems();
+        }
+
+        function displayCartItems() {
+            // Display cart items in the modal
+            var cartItems = document.getElementById('cartItems');
+            cartItems.innerHTML = ''; // Clear previous items
+            cart.forEach(function(item) {
+                var div = document.createElement('div');
+                div.textContent = item.item + ' - ' + item.price + '원';
+                cartItems.appendChild(div);
+            });
+        }
+
+        function submitOrder() {
+            // Submit order to Firebase
+            firebase.database().ref('orders').push(cart);
+            alert('Order submitted!');
+            cart = []; // Clear cart after submission
+            toggleCart();
+        }
+    </script>
+</body>
+</html>

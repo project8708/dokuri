@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메뉴 주문</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js" defer></script>
+    <script src="firebaseConfig.js" defer></script>
+    <script src="prices.js" defer></script>
+    <script src="scripts.js" defer></script>
+</head>
+<body>
+    <div id="menu-container"></div>
+    <div id="cart-icon" onclick="toggleCart()">🛒</div>
+    <div id="cart-container" class="hidden">
+        <div id="cart-items"></div>
+        <button id="order-button" onclick="sendOrder()">주문하기</button>
+    </div>
+    <div id="options-container" class="hidden"></div>
+</body>
+</html>
