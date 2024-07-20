@@ -1,4 +1,3 @@
-
 // Removed import statements
 const firebaseConfig = {
     apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
@@ -25,7 +24,7 @@ window.addToCart = function(item, price) {
     showNotification(`${item} has been added to your cart.`);
 }
 
-function updateCartDisplay() {
+window.updateCartDisplay = function() {
     const cartItemsContainer = document.querySelector('.cart-items');
     cartItemsContainer.innerHTML = '';
     for (const [item, { price, quantity }] of Object.entries(cart)) {
@@ -38,7 +37,7 @@ function updateCartDisplay() {
     document.querySelector('.cart-total').textContent = `총액: ${total.toLocaleString()}원`;
 }
 
-function sendOrder() {
+window.sendOrder = function() {
     const orderRef = database.ref('orders/' + Date.now());
     orderRef.set(cart).then(() => {
         showNotification('Order placed successfully.');
