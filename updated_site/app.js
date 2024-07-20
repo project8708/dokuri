@@ -1,7 +1,4 @@
-
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js';
-import { getDatabase, ref, set } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js';
-
+// Removed import statements
 const firebaseConfig = {
     apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
     authDomain: "acoustic-arch-320110.firebaseapp.com",
@@ -13,12 +10,12 @@ const firebaseConfig = {
     measurementId: "G-BGTD7LKT1C"
 };
 
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
 
 let cart = {};
 
-function addToCart(item, price) {
+window.addToCart = function(item, price) {
     if (!cart[item]) {
         cart[item] = { price: price, quantity: 0 };
     }
@@ -41,8 +38,8 @@ function updateCartDisplay() {
 }
 
 function sendOrder() {
-    const orderRef = ref(database, 'orders/' + Date.now());
-    set(orderRef, cart).then(() => {
+    const orderRef = database.ref('orders/' + Date.now());
+    orderRef.set(cart).then(() => {
         showNotification('Order placed successfully.');
         cart = {};
         updateCartDisplay();
@@ -62,12 +59,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function showOptions() {
+window.showOptions = function() {
     console.log('Options shown');
     // Implement the functionality as needed
 }
 
-function showNotification(message) {
+window.showNotification = function(message) {
     const notification = document.createElement('div');
     notification.className = 'notification';
     notification.textContent = message;
@@ -81,7 +78,7 @@ function showNotification(message) {
     }, 3000);
 }
 
-function closeCart() {
+window.closeCart = function() {
     const cartContainer = document.querySelector('.cart-container');
     if (cartContainer) {
         cartContainer.style.display = 'none';

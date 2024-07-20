@@ -5,23 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Restaurant Menu</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js"></script>
+    <script src="app.js" defer></script>
 </head>
 <body>
 <h1>Menu</h1>
 <div class="menu-section" id="꼬치구이">
-        <h2>꼬치구이</h2>
-        <div class="menu-item"><span>츠쿠네</span><span>5,500원 <button data-addtocart data-item="츠쿠네" data-price="5500">Add</button></span></div>
-        <div class="menu-item"><span>닭 날개</span><span>4,500원 <button data-addtocart data-item="닭 날개" data-price="4500">Add</button></span></div>
-        <div class="menu-item"><span>닭 가슴살</span><span>4,000원 <button data-addtocart data-item="닭 가슴살" data-price="4000">Add</button></span></div>
-        <div class="menu-item"><span>명란마요 가슴살</span><span>5,000원 <button data-addtocart data-item="명란마요 가슴살" data-price="5000">Add</button></span></div>
-        <div class="menu-item"><span>돼지 삼겹</span><span>4,000원 <button data-addtocart data-item="돼지 삼겹" data-price="4000">Add</button></span></div>
-        <div class="menu-item"><span>닭 다리살&파</span><span>5,000원 <button data-addtocart data-item="닭 다리살&파" data-price="5000">Add</button></span></div>
-        <div class="menu-item"><span>닭 다리살</span><span>5,000원 <button data-addtocart data-item="닭 다리살" data-price="5000">Add</button></span></div>
-        <div class="menu-item"><span>항정살</span><span>4,500원 <button data-addtocart data-item="항정살" data-price="4500">Add</button></span></div>
-        <div class="menu-item"><span>닭 목살</span><span>4,000원 <button data-addtocart data-item="닭 목살" data-price="4000">Add</button></span></div>
-        <div class="menu-item"><span>감자&생크림</span><span>4,000원 <button data-addtocart data-item="감자&생크림" data-price="4000">Add</button></span></div>
-        <div class="menu-item"><span>마늘</span><span>3,000원 <button data-addtocart data-item="마늘" data-price="3000">Add</button></span></div>
-        <div class="menu-item"><span>표고버섯&완자</span><span>5,000원 <button data-addtocart data-item="표고버섯&완자" data-price="5000">Add</button></span></div>
+    <h2>꼬치구이</h2>
+    <div class="menu-item"><span>츠쿠네</span><span>5,500원 <button data-addtocart data-item="츠쿠네" data-price="5500">Add</button></span></div>
+    <div class="menu-item"><span>닭 날개</span><span>4,500원 <button data-addtocart data-item="닭 날개" data-price="4500">Add</button></span></div>
+    <div class="menu-item"><span>닭 가슴살</span><span>4,000원 <button data-addtocart data-item="닭 가슴살" data-price="4000">Add</button></span></div>
+    <div class="menu-item"><span>명란마요 가슴살</span><span>5,000원 <button data-addtocart data-item="명란마요 가슴살" data-price="5000">Add</button></span></div>
+    <div class="menu-item"><span>돼지 삼겹</span><span>4,000원 <button data-addtocart data-item="돼지 삼겹" data-price="4000">Add</button></span></div>
+    <div class="menu-item"><span>닭 다리살&파</span><span>5,000원 <button data-addtocart data-item="닭 다리살&파" data-price="5000">Add</button></span></div>
+    <div class="menu-item"><span>닭 다리살</span><span>5,000원 <button data-addtocart data-item="닭 다리살" data-price="5000">Add</button></span></div>
+    <div class="menu-item"><span>항정살</span><span>4,500원 <button data-addtocart data-item="항정살" data-price="4500">Add</button></span></div>
+    <div class="menu-item"><span>닭 목살</span><span>4,000원 <button data-addtocart data-item="닭 목살" data-price="4000">Add</button></span></div>
+    <div class="menu-item"><span>감자&생크림</span><span>4,000원 <button data-addtocart data-item="감자&생크림" data-price="4000">Add</button></span></div>
+    <div class="menu-item"><span>마늘</span><span>3,000원 <button data-addtocart data-item="마늘" data-price="3000">Add</button></span></div>
+    <div class="menu-item"><span>표고버섯&완자</span><span>5,000원 <button data-addtocart data-item="표고버섯&완자" data-price="5000">Add</button></span></div>
+</div>
         <div class="menu-item"><span>옥수수</span><span>5,000원 <button data-addtocart data-item="옥수수" data-price="5000">Add</button></span></div>
         <div class="menu-item"><span>새송이</span><span>4,000원 <button data-addtocart data-item="새송이" data-price="4000">Add</button></span></div>
         <div class="menu-item"><span>은행</span><span>4,000원 <button data-addtocart data-item="은행" data-price="4000">Add</button></span></div>
