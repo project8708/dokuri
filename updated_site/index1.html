@@ -5,26 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Restaurant Menu</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const firebaseConfig = {
-            apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
-            authDomain: "acoustic-arch-320110.firebaseapp.com",
-            databaseURL: "https://acoustic-arch-320110-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "acoustic-arch-320110",
-            storageBucket: "acoustic-arch-320110.appspot.com",
-            messagingSenderId: "975479821242",
-            appId: "1:975479821242:web:a6b4d128893cdec1100383",
-            measurementId: "G-BGTD7LKT1C"
-            };
-            firebase.initializeApp(firebaseConfig);
-        });
-    </script>
 </head>
 <body>
 <h1>Menu</h1>
+
 <div class="menu-section" id="꼬치구이">
     <h2>꼬치구이</h2>
     <div class="menu-item"><span>츠쿠네</span><span>5,500원 <button data-addtocart data-item="츠쿠네" data-price="5500">Add</button></span></div>
@@ -144,28 +131,21 @@
         <h2>기타</h2>
         <div class="menu-item"><span>레몬 슬라이스(1/2)</span><span>1,000원 <button data-addtocart data-item="레몬 슬라이스(1/2)" data-price="1000">Add</button></span></div>
     </div>
-    <div class="cart-icon" aria-label="Shopping Cart">Cart (0)</div>
-    <div class="notification" role="alert"></div>
-<div class="option-modal">
-    <div class="options-container"></div>
-    <button onclick="closeOptions()">Close</button>
-</div>
-<div class="cart-modal">
-    <div class="cart-items"></div>
-    <div class="cart-total"></div>
-    <button class="order-button">주문하기</button>
-    <button onclick="closeCart()">Close</button>
-</div>
-<script src="app.js"></script>
 <script>
-document.querySelectorAll('[data-addtocart]').forEach(button => {
-    button.addEventListener('click', () => {
-        const item = button.getAttribute('data-item');
-        const price = parseInt(button.getAttribute('data-price'));
-        addToCart(item, price);
+    document.addEventListener('DOMContentLoaded', () => {
+        const firebaseConfig = {
+            apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
+            authDomain: "acoustic-arch-320110.firebaseapp.com",
+            databaseURL: "https://acoustic-arch-320110-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "acoustic-arch-320110",
+            storageBucket: "acoustic-arch-320110.appspot.com",
+            messagingSenderId: "975479821242",
+            appId: "1:975479821242:web:a6b4d128893cdec1100383",
+            measurementId: "G-BGTD7LKT1C"
+        };
+        firebase.initializeApp(firebaseConfig);
     });
-});
 </script>
-<script src="app.js" defer></script>
+<script src="app.js"></script>
 </body>
 </html>
