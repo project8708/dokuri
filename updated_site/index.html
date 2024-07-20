@@ -1,10 +1,13 @@
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>Order Submission</title>
+    <link rel="stylesheet" href="styles.css">
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
         import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+        import { parseMenuData } from './prices.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
@@ -20,13 +23,153 @@
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
+        const menuText = `[꼬치구이]
+꼬치구이 - {고기류}
+츠쿠네			5,500
+닭 날개			4,500
+닭 가슴살			4,000
+명란마요 가슴살		5,000
+돼지 삼겹			4,000
+닭 다리살&파		5,000
+닭 다리살			5,000
+항정살			4,500
+닭 목살			4,000
+꼬치구이 - {야채류}
+감자&생크림		4,000
+마늘			3,000
+표고버섯&완자		5,000
+옥수수			5,000
+새송이			4,000
+은행			4,000
+꼬치구이 - {삼겹말이}
+양송이 삼겹		4,000
+팽이버섯 삼겹		4,000
+메추리알 삼겹		4,000
+아스파라 삼겹		4,000
+초생강 삼겹		4,000
+마늘 삼겹			4,000
+토마토 삼겹		4,000
+꼬치구이 - {기타}
+막창			4,000
+닭 껍질			3,500
+염통			3,500
+새우			3,500
+꼬치구이 - {단품으로만 주문가능}
+소등심			5,500
+닭 물령뼈			4,500
+양송이			4,000
+
+[일품요리]
+연어 사시미
+(옵션 1 소)		28,000
+(옵션 2 중)		36,000
+(옵션 3 대)		45,000
+오꼬노미야끼		19,000
+삼겹 숙주 볶음		18,000
+소고기 타다끼		27,000
+
+[숯불구이]
+명란 숯불구이		10,000
+메로 숯불구이		26,000
+닭 목살 숯불구이		17,000
+시사모 숯불구이		10,000
+
+[탕류]
+나가사키 해물탕		21,000
+간사이 오뎅탕		18,000
+카레 나베			22,000
+면사리			2,000
+공기밥			2,000
+
+[튀김]
+닭 가라아게		18,000
+닭 물령뼈 가라아게		19,000
+닭껍질 가라아게		15,000
+아게다시 도후		13,000
+
+[샐러드]
+연어 샐러드		16,000
+토마토 샐러드		11,000
+
+[쯔께]
+복분자 절임 토마토		4,000
+타코 와사비		10,000
+
+[식사]
+카레 우동			10,000
+카레 라이스		11,000
+규동			9,000
+공기밥			2,000
+
+[주류]
+주류 - {일본주}
+센노 유메 14%
+(옵션1 잔술)		5,000
+(옵션2 도쿠리)		10,000
+(옵션3 1.8L)		55,000
+간바레 오또상		36,000
+월계관 준마이		35,000
+사쿠라 준마이		45,000
+월계관 준마이 다이긴죠	85,000
+닷사이 준마이 다이긴죠	100,000
+주류 - {증류 소주}
+비잔 클리어 25%		50,000
+텐손 코우린 25%		80,000
+화요 25			27,000
+화요 41			60,000
+화요set			3,000
+주류 - {위스키}
+산토리 가쿠빈		100,000
+주류 - {생맥주}
+삿포로 생맥주		8,000
+주류 - {일반 주류}
+소주			5,000
+(옵션1 대선) 
+(옵션2 참이슬)
+(옵션3 좋은데이)
+맥주			5,000
+(옵션1 카스)
+(옵션2 테라)
+청하			6,000
+산토리 하이볼		9,000
+레몬사와			9,000
+[음료]
+음료			2,500
+(옵션 1 제로콜라)
+(옵션 2 사이다)
+(옵션 3 토닉워터)
+(옵션 4 진저에일)
+우롱차
+(옵션 1 Hot)
+(옵션 2 Ice)
+[기타]
+레몬 슬라이스(1/2)		1,000`; // `가격표.txt`의 내용을 여기에 넣습니다.
+        const menuData = parseMenuData(menuText);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuContainer = document.getElementById('menuContainer');
+            Object.keys(menuData).forEach(category => {
+                const categoryElement = document.createElement('div');
+                categoryElement.innerHTML = `<h2>${category}</h2>`;
+                menuData[category].forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.innerHTML = `<p>${item.name} - ${item.price}원</p>`;
+                    itemElement.onclick = () => addToCart(item);
+                    categoryElement.appendChild(itemElement);
+                });
+                menuContainer.appendChild(categoryElement);
+            });
+        });
+
+        const cart = [];
+        function addToCart(item) {
+            cart.push(item);
+            alert('장바구니에 추가되었습니다: ' + item.name);
+            // Add additional code for quantity management and transparent alert here
+        }
+
         function submitOrder() {
-            const order = {
-                items: {
-                    item1: { quantity: 1, price: 1000 },
-                    item2: { quantity: 2, price: 2000 }
-                }
-            };
+            const order = { items: cart };
             const ordersRef = ref(database, 'orders');
             push(ordersRef, order).then(() => {
                 alert('Order submitted successfully!');
@@ -38,6 +181,47 @@
 </head>
 <body>
     <h1>Order Submission</h1>
+    <div id="menuContainer"></div>
     <button onclick="submitOrder()">Submit Order</button>
+    <div id="cartIcon" onclick="toggleCart()">🛒</div>
+    <div id="cartContainer">
+        <h2>장바구니</h2>
+        <div id="cartItems"></div>
+        <button onclick="submitOrder()">Submit Order</button>
+    </div>
+    <div class="transparent-alert" id="alertBox">장바구니에 추가되었습니다!</div>
 </body>
+<script>
+    let cartVisible = false;
+
+    function toggleCart() {
+        const cartContainer = document.getElementById('cartContainer');
+        cartVisible = !cartVisible;
+        cartContainer.style.display = cartVisible ? 'block' : 'none';
+    }
+
+    function showTransparentAlert() {
+        const alertBox = document.getElementById('alertBox');
+        alertBox.style.display = 'block';
+        setTimeout(() => {
+            alertBox.style.display = 'none';
+        }, 2000);
+    }
+
+    function addToCart(item) {
+        cart.push(item);
+        updateCartUI();
+        showTransparentAlert();
+    }
+
+    function updateCartUI() {
+        const cartItems = document.getElementById('cartItems');
+        cartItems.innerHTML = '';
+        cart.forEach(item => {
+            const itemElement = document.createElement('div');
+            itemElement.innerHTML = `<p>${item.name} - ${item.price}원</p>`;
+            cartItems.appendChild(itemElement);
+        });
+    }
+</script>
 </html>
