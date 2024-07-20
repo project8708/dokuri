@@ -131,6 +131,19 @@
         <h2>기타</h2>
         <div class="menu-item"><span>레몬 슬라이스(1/2)</span><span>1,000원 <button data-addtocart data-item="레몬 슬라이스(1/2)" data-price="1000">Add</button></span></div>
     </div>
+ <!-- Cart Icon -->
+    <div id="cart-icon" onclick="toggleCart()">🛒</div>
+
+    <!-- Cart -->
+    <div id="cart" class="cart">
+        <div class="cart-header">
+            <span>장바구니</span>
+            <button onclick="closeCart()">X</button>
+        </div>
+        <div class="cart-items"></div>
+        <div class="cart-total"></div>
+        <button onclick="sendOrder()">Order Now</button>
+    </div>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const firebaseConfig = {
