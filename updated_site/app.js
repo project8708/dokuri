@@ -1,3 +1,4 @@
+
 // Removed import statements
 const firebaseConfig = {
     apiKey: "AIzaSyCI2U6rdm1dVqHa4KTBO7ebiO49cnnM7W4",
